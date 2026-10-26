@@ -18,8 +18,12 @@
 :root{
   --ink:#2D2D2D;--ink-2:#555555;--ink-3:#8C8C8C;--ink-4:#BDBDBD;
   --white:#FFFFFF;
-  --pink-50:#FFF9FA;--pink-100:#FDF1F4;--pink-200:#F9E1E7;--pink-300:#F2C9D3;--pink-500:#D9879C;--pink-700:#A4486A;
-  --line:#F0E4E8;
+  --pink-50:#FFFBFC;--pink-100:#FEF5F7;--pink-200:#FBEAEF;--pink-300:#F6D7DF;--pink-500:#E39CAE;--pink-700:#A4486A;
+  --brand:#6B6B6B;
+  /* 상태 컬러: 승인 대기 = 구글 시트 드롭다운 파스텔 옐로우 / 면접 확정 = 기존 승인 대기 핑크 */
+  --pend-bg:#FFE5A0;--pend-tx:#473821;--pend-soft:#FFF8E3;--pend-bd:#F3D98A;
+  --conf-bg:#F9E1E7;--conf-tx:#A4486A;
+  --line:#F3EAED;
   /* 여유·혼잡·마감·예약불가 (기존 컬러 유지) */
   --c-avail-bg:#FAF8F5;--c-avail-bd:#C8B89A;--c-avail-tx:#7A6045;
   --c-crowd-bg:#FFF3E6;--c-crowd-bd:#F2C7A2;--c-crowd-tx:#C96D28;
@@ -38,7 +42,7 @@ a{color:inherit;}
 
 /* ── 로딩 ── */
 #loading-overlay{position:fixed;inset:0;background:var(--pink-50);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;}
-.loader-spinner{width:38px;height:38px;border:3px solid var(--pink-200);border-top-color:var(--ink);border-radius:50%;animation:spin .8s linear infinite;}
+.loader-spinner{width:38px;height:38px;border:3px solid var(--pink-200);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loader-text{font-size:14px;color:var(--ink-3);font-weight:500;line-height:1.7;}
 
@@ -46,13 +50,13 @@ a{color:inherit;}
 #auth-gate{position:fixed;inset:0;background:linear-gradient(165deg,var(--pink-50) 0%,var(--pink-100) 100%);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
 .gate-wrap{width:100%;max-width:420px;margin:auto;}
 .gate-card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;}
-.gate-header{background:var(--ink);padding:28px 24px;text-align:center;color:var(--white);}
+.gate-header{background:var(--brand);padding:28px 24px;text-align:center;color:var(--white);}
 .gate-header .gh-icon{width:48px;height:48px;border-radius:14px;background:rgba(249,225,231,0.16);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px;color:var(--pink-300);}
 .gate-header h1{font-size:19px;font-weight:700;margin-bottom:6px;letter-spacing:-0.3px;}
 .gate-header p{font-size:13px;color:rgba(255,255,255,0.65);}
 .gate-body{padding:24px;}
 .gate-btn{width:100%;padding:15px;border-radius:var(--radius-md);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;}
-.gate-btn-main{background:var(--ink);color:var(--white);border:none;}
+.gate-btn-main{background:var(--brand);color:var(--white);border:none;}
 .gate-btn-main:active{opacity:.85;}
 .gate-btn-sub{background:var(--white);color:var(--ink);border:1.5px solid var(--line);margin-top:12px;}
 .gate-btn-sub:hover{border-color:var(--pink-300);background:var(--pink-50);}
@@ -61,7 +65,7 @@ a{color:inherit;}
 .gate-form .field-group{margin-bottom:10px;}
 .gate-hint{font-size:12px;color:var(--ink-3);margin-top:10px;line-height:1.6;text-align:center;}
 .gate-divider{display:flex;align-items:center;gap:10px;color:var(--ink-4);font-size:12px;margin:18px 0 6px;}
-.gate-btn-google{background:var(--white);color:var(--ink);border:1.5px solid var(--ink);margin-top:12px;}
+.gate-btn-google{background:var(--white);color:var(--ink);border:1.5px solid var(--brand);margin-top:12px;}
 .gate-btn-google:hover{background:var(--pink-50);}
 .gate-btn-google svg{width:19px;height:19px;flex-shrink:0;}
 .gate-link{display:block;width:100%;background:none;border:none;color:var(--ink-3);font-size:12px;margin-top:12px;text-decoration:underline;text-underline-offset:3px;}
@@ -73,7 +77,7 @@ a{color:inherit;}
 
 /* ── 앱 레이아웃 ── */
 .app{display:none;max-width:760px;margin:0 auto;min-height:100vh;background:var(--white);box-shadow:0 0 0 1px var(--line);}
-.app-header{background:var(--ink);color:var(--white);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:100;}
+.app-header{background:var(--brand);color:var(--white);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:100;}
 .app-header-left{display:flex;align-items:center;gap:10px;min-width:0;}
 .app-header-icon{width:36px;height:36px;background:rgba(249,225,231,0.16);color:var(--pink-300);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
 .app-header-title{font-size:16px;font-weight:700;letter-spacing:-0.3px;}
@@ -91,7 +95,7 @@ a{color:inherit;}
 .tabs{display:flex;border-bottom:1px solid var(--line);background:var(--white);position:sticky;top:64px;z-index:90;}
 .tab{flex:1;min-width:0;padding:11px 6px 10px;font-size:13px;font-weight:500;border:none;background:transparent;color:var(--ink-3);border-bottom:2.5px solid transparent;margin-bottom:-1px;white-space:nowrap;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;transition:color .2s;}
 .tab i{font-size:19px;}
-.tab.active{color:var(--ink);font-weight:700;border-bottom-color:var(--ink);}
+.tab.active{color:var(--ink);font-weight:700;border-bottom-color:var(--brand);}
 .tab-badge{position:absolute;top:6px;left:calc(50% + 8px);min-width:17px;height:17px;padding:0 5px;border-radius:99px;background:var(--pink-500);color:var(--white);font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;}
 .panel{display:none;padding:20px;}
 .panel.active{display:block;}
@@ -143,7 +147,7 @@ a{color:inherit;}
 .cal-day.full .dn{color:var(--c-full-tx);}
 .cal-day.full .dc{background:var(--c-full-bd);color:#fff;}
 .cal-day.today{box-shadow:inset 0 0 0 1.5px var(--pink-500);}
-.cal-day.selected{background:var(--ink)!important;border-color:var(--ink)!important;}
+.cal-day.selected{background:var(--brand)!important;border-color:var(--brand)!important;}
 .cal-day.selected .dn{color:#fff!important;}
 .cal-day.selected .dc{background:rgba(255,255,255,0.22)!important;color:#fff!important;}
 
@@ -170,7 +174,7 @@ a{color:inherit;}
 .slot-btn.s-open:active,.slot-btn.s-open:hover{background:var(--c-avail-bg);border-color:var(--c-avail-bd);}
 .slot-btn.s-taken{background:var(--c-full-bg);border-color:var(--c-full-bd);color:var(--c-full-tx);cursor:not-allowed;}
 .slot-btn.s-taken .slot-status{color:var(--c-full-tx);}
-.slot-btn.s-sel{background:var(--ink);border-color:var(--ink);color:#fff;}
+.slot-btn.s-sel{background:var(--brand);border-color:var(--brand);color:#fff;}
 .slot-btn.s-sel .slot-status{color:rgba(255,255,255,0.7);}
 .slot-note{font-size:12px;color:var(--ink-3);text-align:center;margin-bottom:16px;}
 
@@ -193,7 +197,7 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 .btn i{font-size:17px;}
 .btn-block{width:100%;padding:15px;font-size:15px;border-radius:var(--radius-md);}
-.btn-ink{background:var(--ink);color:var(--white);}
+.btn-ink{background:var(--brand);color:var(--white);}
 .btn-pink{background:var(--pink-200);color:var(--pink-700);}
 .btn-line{background:var(--white);color:var(--ink);border:1.5px solid var(--line);}
 .btn-danger{background:var(--c-full-tx);color:var(--white);}
@@ -204,17 +208,17 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 /* ── 상태 칩 ── */
 .chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap;}
 .chip-none{background:#F2F2F2;color:var(--ink-3);}
-.chip-pend{background:var(--pink-200);color:var(--pink-700);}
-.chip-conf{background:var(--ink);color:var(--white);}
+.chip-pend{background:var(--pend-bg);color:var(--pend-tx);}
+.chip-conf{background:var(--conf-bg);color:var(--conf-tx);}
 
 /* ── 지원자 상태 트래커 ── */
 .tracker{display:flex;align-items:flex-start;margin:4px 0 20px;}
 .trk-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;text-align:center;}
 .trk-step:not(:last-child)::after{content:"";position:absolute;top:15px;left:calc(50% + 18px);right:calc(-50% + 18px);height:2px;background:var(--line);}
-.trk-step.done:not(:last-child)::after{background:var(--ink);}
+.trk-step.done:not(:last-child)::after{background:var(--brand);}
 .trk-dot{width:32px;height:32px;border-radius:50%;background:var(--white);border:2px solid var(--line);color:var(--ink-4);display:flex;align-items:center;justify-content:center;font-size:16px;z-index:1;}
-.trk-step.done .trk-dot{background:var(--ink);border-color:var(--ink);color:#fff;}
-.trk-step.active .trk-dot{background:var(--pink-200);border-color:var(--pink-500);color:var(--pink-700);}
+.trk-step.done .trk-dot{background:var(--brand);border-color:var(--brand);color:#fff;}
+.trk-step.active .trk-dot{background:var(--pend-bg);border-color:var(--pend-bd);color:var(--pend-tx);}
 .trk-label{font-size:12px;font-weight:500;color:var(--ink-3);}
 .trk-step.done .trk-label,.trk-step.active .trk-label{color:var(--ink);font-weight:700;}
 
@@ -227,13 +231,13 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:22px;}
 @media(max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
 .stat{background:var(--white);border:1px solid var(--line);border-radius:var(--radius-md);padding:14px 8px;text-align:center;}
-.stat.hl{background:var(--pink-100);border-color:var(--pink-200);}
+.stat.hl{background:var(--pend-soft);border-color:var(--pend-bd);}
 .stat-val{font-size:24px;font-weight:700;color:var(--ink);line-height:1.2;}
-.stat.hl .stat-val{color:var(--pink-700);}
+.stat.hl .stat-val{color:var(--pend-tx);}
 .stat-label{font-size:12px;color:var(--ink-3);margin-top:4px;font-weight:500;}
 
 /* ── 승인 대기 리스트 ── */
-.req-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--pink-200);background:var(--pink-50);border-radius:var(--radius-md);margin-bottom:8px;}
+.req-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--pend-bd);background:var(--pend-soft);border-radius:var(--radius-md);margin-bottom:8px;}
 .req-main{flex:1;min-width:0;}
 .req-name{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .req-name span{font-weight:500;color:var(--ink-3);font-size:12px;margin-left:4px;}
@@ -269,23 +273,57 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 .tc-orphan{background:#FFF8E6;cursor:pointer;}
 .tc-orphan::after{content:"확인필요";font-size:10px;color:#B7791F;font-weight:700;}
 .pill{display:block;border-radius:5px;padding:6px 3px;font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;cursor:pointer;}
-.pill-pend{background:var(--pink-200);color:var(--pink-700);}
-.pill-conf{background:var(--ink);color:var(--white);}
+.pill-pend{background:var(--pend-bg);color:var(--pend-tx);}
+.pill-conf{background:var(--conf-bg);color:var(--conf-tx);}
 .sched-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-size:11px;color:var(--ink-3);margin-top:10px;}
 .sched-legend span{display:inline-flex;align-items:center;gap:5px;}
 .sched-legend b{width:12px;height:12px;border-radius:3px;display:inline-block;}
 
 /* ── 잠금 미니 달력 ── */
-.mini-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0;}
+.mon-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:12px;align-items:start;}
+@media(max-width:600px){.mon-wrap{grid-template-columns:1fr;}}
+.mon-left .cal-nav{margin:0 0 6px;}
+.mon-left .icon-btn{width:30px;height:30px;font-size:16px;}
+.mini-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin:6px 0 8px;}
 .mini-dow{text-align:center;font-size:11px;color:var(--ink-3);font-weight:500;padding:3px 0;}
 .mini-dow.red{color:var(--holiday);}
-.mini-day{height:34px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border-radius:6px;border:1px solid transparent;}
+.mini-day{height:30px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border-radius:6px;border:1px solid transparent;position:relative;}
 .mini-day.md-empty{background:transparent;}
 .mini-day.md-dis{background:var(--c-dis-bg);color:var(--c-dis-tx);}
 .mini-day.md-off{background:var(--c-dis-bg);color:var(--holiday);opacity:.55;}
 .mini-day.md-open{background:var(--white);border-color:var(--c-avail-bd);color:var(--c-avail-tx);cursor:pointer;}
 .mini-day.md-open:hover{background:var(--c-avail-bg);}
-.mini-day.md-blocked{background:var(--c-block-bg);border-color:var(--c-block-bd);color:var(--c-block-tx);cursor:pointer;text-decoration:line-through;}
+.mini-day.md-blocked{background:var(--c-block-bg);border-color:var(--c-block-bd);color:var(--c-block-tx);cursor:pointer;}
+.mini-day.md-dis.md-click{cursor:pointer;}
+.mini-day.md-sel{box-shadow:0 0 0 2px var(--brand)!important;}
+.md-badge{position:absolute;top:-5px;right:-4px;min-width:15px;height:15px;padding:0 3px;border-radius:99px;background:var(--conf-bg);color:var(--conf-tx);border:1px solid #F0C4D0;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;}
+.day-panel{background:var(--white);border:1px solid var(--line);border-radius:var(--radius-md);padding:14px;min-height:100%;}
+.day-panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:10px;margin-bottom:8px;border-bottom:1px solid var(--pink-100);}
+.day-panel-date{font-size:14px;font-weight:700;color:var(--ink);}
+.day-item{display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--pink-100);cursor:pointer;border-radius:6px;}
+.day-item:last-of-type{border-bottom:none;}
+.day-item:hover{background:var(--pink-50);}
+.day-time{flex:0 0 46px;font-size:13px;font-weight:700;color:var(--conf-tx);}
+.day-main{flex:1;min-width:0;}
+.day-name{font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.day-name span{font-weight:500;color:var(--ink-3);font-size:12px;margin-left:4px;}
+.day-phone{font-size:12px;color:var(--ink-2);margin-top:1px;}
+.day-phone a{text-decoration:none;}
+.day-note{font-size:11px;color:var(--ink-3);margin-top:8px;line-height:1.6;}
+.sched-guide{font-size:11px;color:var(--ink-3);margin-top:3px;line-height:1.5;}
+.sched-tbl{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
+.sched-tbl th[data-k]{cursor:context-menu;}
+.sched-tbl th.blk{background:var(--c-block-bg);color:var(--c-block-tx);}
+.slot-btn.s-locked{background:var(--c-block-bg);border-color:var(--c-block-bd);color:var(--c-block-tx);cursor:not-allowed;}
+.slot-btn.s-locked .slot-status{color:var(--c-block-tx);}
+#ctx-menu{position:fixed;z-index:100002;min-width:190px;background:var(--white);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow-lg);padding:6px;display:none;}
+#ctx-menu.open{display:block;}
+.ctx-title{font-size:11px;font-weight:700;color:var(--ink-3);padding:6px 10px 4px;}
+.ctx-item{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border:none;background:none;border-radius:6px;font-size:13px;font-weight:500;color:var(--ink);text-align:left;}
+.ctx-item:hover{background:var(--pink-100);}
+.ctx-item i{font-size:16px;color:var(--ink-3);}
+.ctx-note{font-size:11px;color:var(--ink-3);padding:4px 10px 6px;line-height:1.5;}
+.ctx-sep{height:1px;background:var(--pink-100);margin:4px 2px;}
 .mini-day.md-today{box-shadow:0 0 0 2px var(--pink-500);}
 
 /* ── 목록 테이블 ── */
@@ -303,7 +341,7 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 .search-box .field-input{padding-left:36px;}
 .filter-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
 .filter-chip{padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--white);font-size:12px;font-weight:500;color:var(--ink-2);}
-.filter-chip.on{background:var(--ink);border-color:var(--ink);color:var(--white);font-weight:700;}
+.filter-chip.on{background:var(--brand);border-color:var(--brand);color:var(--white);font-weight:700;}
 .cand-card{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:var(--radius-md);margin-bottom:8px;cursor:pointer;background:var(--white);transition:border-color .2s;}
 .cand-card:hover{border-color:var(--pink-300);}
 .cand-avatar{width:40px;height:40px;border-radius:50%;background:var(--pink-100);color:var(--pink-700);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;}
@@ -319,7 +357,7 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 .att-item i.ft{font-size:20px;color:var(--pink-500);flex-shrink:0;}
 .att-name{flex:1;min-width:0;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .att-name small{display:block;font-size:11px;color:var(--ink-3);font-weight:400;}
-.att-btn{padding:6px 10px;border-radius:6px;border:none;background:var(--ink);color:#fff;font-size:12px;font-weight:700;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;gap:3px;}
+.att-btn{padding:6px 10px;border-radius:6px;border:none;background:var(--brand);color:#fff;font-size:12px;font-weight:700;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;gap:3px;}
 .att-btn.line{background:var(--white);color:var(--ink);border:1px solid var(--line);}
 .att-x{width:28px;height:28px;border-radius:6px;border:1px solid var(--line);background:var(--white);color:var(--ink-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .sub-title{font-size:12px;font-weight:700;color:var(--ink-2);margin:16px 0 8px;display:flex;align-items:center;gap:5px;}
@@ -336,7 +374,7 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 .log-body{flex:1;min-width:0;line-height:1.65;color:var(--ink-2);}
 .log-badge{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:700;margin-right:5px;}
 .lb-create{background:var(--c-avail-bg);color:var(--c-avail-tx);border:1px solid var(--c-avail-bd);}
-.lb-approve{background:var(--ink);color:#fff;}
+.lb-approve{background:var(--conf-bg);color:var(--conf-tx);}
 .lb-change{background:var(--c-crowd-bg);color:var(--c-crowd-tx);}
 .lb-cancel{background:var(--c-full-bg);color:var(--c-full-tx);}
 .lb-register{background:var(--pink-200);color:var(--pink-700);}
@@ -353,7 +391,7 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 @media(min-width:560px){.modal-sheet{border-radius:var(--radius-lg);}}
 .modal-handle{width:38px;height:4px;background:var(--pink-200);border-radius:99px;margin:0 auto 16px;}
 @media(min-width:560px){.modal-handle{display:none;}}
-.modal-title{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--ink);display:flex;align-items:center;gap:8px;}
+.modal-title{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--brand);display:flex;align-items:center;gap:8px;}
 .modal-title i{font-size:20px;color:var(--pink-500);}
 .modal-btns{display:flex;gap:8px;margin-top:18px;}
 .modal-btns .btn{flex:1;padding:13px 6px;}
@@ -362,7 +400,7 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 .agree-box{background:var(--pink-100);border:1px solid var(--pink-200);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--ink-2);line-height:1.75;margin:14px 0 10px;}
 .agree-box strong{color:var(--pink-700);}
 .check-row{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--ink);font-weight:500;cursor:pointer;padding:4px 0;}
-.check-row input{width:18px;height:18px;margin-top:1px;flex-shrink:0;accent-color:var(--ink);}
+.check-row input{width:18px;height:18px;margin-top:1px;flex-shrink:0;accent-color:var(--brand);}
 .done-wrap{text-align:center;padding:6px 0 0;}
 .done-icon{width:64px;height:64px;border-radius:50%;background:var(--pink-100);color:var(--pink-700);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:32px;}
 .done-title{font-size:19px;font-weight:700;margin-bottom:8px;}
@@ -370,7 +408,7 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 .done-sub strong{color:var(--pink-700);}
 
 /* ── 토스트 ── */
-.toast{display:none;position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 22px;border-radius:99px;font-size:13px;font-weight:500;z-index:100001;box-shadow:var(--shadow-md);max-width:90vw;text-align:center;line-height:1.5;}
+.toast{display:none;position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--brand);color:#fff;padding:12px 22px;border-radius:99px;font-size:13px;font-weight:500;z-index:100001;box-shadow:var(--shadow-md);max-width:90vw;text-align:center;line-height:1.5;}
 .toast.show{display:block;animation:toastIn .3s ease;}
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
 
@@ -587,6 +625,7 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
           <button class="btn btn-line btn-sm" onclick="exportCSV()"><i class="ti ti-file-spreadsheet"></i>Export</button>
         </div>
       </div>
+      <div class="sched-guide" style="margin:-6px 0 12px;">날짜(상단)를 우클릭하면 그 날짜 전체를, 시간 칸을 우클릭하면 그 시간만 잠금 · 해제할 수 있습니다. (모바일은 길게 누르기)</div>
       <div style="display:flex;justify-content:center;margin-bottom:10px;">
         <div class="sched-nav">
           <button class="icon-btn" onclick="schedMove(-1)"><i class="ti ti-chevron-left"></i></button>
@@ -596,28 +635,30 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
       </div>
       <div class="sched-wrap"><table class="sched-tbl" id="sched-tbl"></table></div>
       <div class="sched-legend">
-        <span><b style="background:var(--pink-200);"></b>승인 대기</span>
-        <span><b style="background:var(--ink);"></b>면접 확정</span>
+        <span><b style="background:var(--pend-bg);"></b>승인 대기</span>
+        <span><b style="background:var(--conf-bg);"></b>면접 확정</span>
         <span><b style="background:var(--white);border:1px solid var(--line);"></b>빈 시간 (클릭 시 추가)</span>
         <span><b style="background:var(--c-block-bg);"></b>잠금</span>
       </div>
     </div>
 
     <div class="section card-soft">
-      <div class="section-head" style="margin-bottom:6px;">
-        <div class="section-title"><i class="ti ti-lock"></i>예약 가능 기간 설정 (잠금 · 해제)</div>
-      </div>
-      <div class="section-sub" style="line-height:1.6;">날짜를 누르면 예약창이 잠기거나 해제됩니다. 잠긴 날짜는 면접 예정자가 예약할 수 없습니다.</div>
-      <div class="cal-nav" style="margin:12px 0 0;">
-        <button class="icon-btn" onclick="blkMove(-1)"><i class="ti ti-chevron-left"></i></button>
-        <div class="cal-title" id="blk-title" style="font-size:15px;"></div>
-        <button class="icon-btn" onclick="blkMove(1)"><i class="ti ti-chevron-right"></i></button>
-      </div>
-      <div class="mini-cal" id="mini-cal"></div>
-      <div class="sched-legend" style="margin-top:4px;">
-        <span><b style="background:var(--white);border:1px solid var(--c-avail-bd);"></b>예약 가능</span>
-        <span><b style="background:var(--c-block-bg);border:1px solid var(--c-block-bd);"></b>잠금 (예약불가)</span>
-        <span style="color:var(--holiday);">빨간 날짜 = 주말·공휴일</span>
+      <div class="section-title"><i class="ti ti-calendar-month"></i>월간 면접 일정 · 예약 잠금</div>
+      <div class="section-sub" style="line-height:1.6;margin-top:4px;">날짜를 누르면 오른쪽에 확정된 면접 일정이 표시되며, 그 날짜의 예약창을 잠그거나 해제할 수 있습니다. 숫자 배지는 확정된 면접 건수입니다.</div>
+      <div class="mon-wrap">
+        <div class="mon-left">
+          <div class="cal-nav">
+            <button class="icon-btn" onclick="blkMove(-1)"><i class="ti ti-chevron-left"></i></button>
+            <div class="cal-title" id="blk-title" style="font-size:14px;"></div>
+            <button class="icon-btn" onclick="blkMove(1)"><i class="ti ti-chevron-right"></i></button>
+          </div>
+          <div class="mini-cal" id="mini-cal"></div>
+          <div class="sched-legend" style="margin-top:0;">
+            <span><b style="background:var(--white);border:1px solid var(--c-avail-bd);"></b>예약 가능</span>
+            <span><b style="background:var(--c-block-bg);border:1px solid var(--c-block-bd);"></b>잠금 (예약불가)</span>
+          </div>
+        </div>
+        <div class="day-panel" id="day-panel"></div>
       </div>
     </div>
 
@@ -691,6 +732,7 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 </div>
 
 <div class="toast" id="toast"></div>
+<div id="ctx-menu"></div>
 
 <!-- ══ 모달: 신청 완료 팝업 ══ -->
 <div class="modal-overlay" id="done-modal">
@@ -860,7 +902,8 @@ let applicant = null;       // { h, cid, name, position, booking }
 let applicantUnsub = null;
 let adminUnsubs = [];
 let adminLoaded = { c:false, a:false };
-let candidates = {}, access = {}, slots = {}, blocked = {}, logs = [];
+let candidates = {}, access = {}, slots = {}, blocked = {}, blockedSlots = {}, logs = [];
+let blkSel = null;
 let knownPending = null;
 const now0 = new Date();
 let calY = now0.getFullYear(), calM = now0.getMonth();
@@ -936,6 +979,7 @@ function attachPublic() {
   });
   FB.onValue(R('slots'), s => { slots = s.val() || {}; queueRender(); }, e => console.warn(e));
   FB.onValue(R('blocked'), s => { blocked = s.val() || {}; queueRender(); }, e => console.warn(e));
+  FB.onValue(R('blockedSlots'), s => { blockedSlots = s.val() || {}; queueRender(); }, e => console.warn(e));
 }
 
 function queueRender() {
@@ -1161,7 +1205,10 @@ window.sw = function (tab) {
 // ════════════════════════════════════════════════
 const slotTaken = (d, t) => !!(slots[d] && slots[d][t]);
 const takenCount = d => SLOT_TIMES.filter(t => slotTaken(d, t)).length;
-const applicantBookable = d => isBusinessDay(d) && !blocked[d] && daysUntil(d) >= MIN_LEAD_DAYS;
+const isSlotLocked = (d, t) => !!blocked[d] || !!(blockedSlots[d] && blockedSlots[d][t]);
+const openTimes = d => SLOT_TIMES.filter(t => !isSlotLocked(d, t));
+const hasSlotLocks = d => !!(blockedSlots[d] && Object.keys(blockedSlots[d]).length);
+const applicantBookable = d => isBusinessDay(d) && !blocked[d] && openTimes(d).length > 0 && daysUntil(d) >= MIN_LEAD_DAYS;
 
 function renderApplicant() {
   if (!applicant) return;
@@ -1206,12 +1253,13 @@ function buildCal() {
       continue;
     }
     if (k < tk) { html += `<div class="cal-day dis"><div class="dn">${d}</div></div>`; continue; }
-    if (blocked[k]) { html += `<div class="cal-day blocked${isToday}"><div class="dn">${d}</div><div class="dc">예약불가</div></div>`; continue; }
+    if (blocked[k] || !openTimes(k).length) { html += `<div class="cal-day blocked${isToday}"><div class="dn">${d}</div><div class="dc">예약불가</div></div>`; continue; }
     if (daysUntil(k) < MIN_LEAD_DAYS) { html += `<div class="cal-day dis${isToday}"><div class="dn">${d}</div><div class="dc">신청마감</div></div>`; continue; }
-    const remaining = SLOT_TIMES.length - takenCount(k);
+    const ot = openTimes(k);
+    const remaining = ot.filter(t => !slotTaken(k, t)).length;
     let cls = remaining >= 3 ? 'avail' : remaining >= 1 ? 'crowd' : 'full';
     if (selDate === k) cls += ' selected';
-    const badge = remaining === 0 ? '마감' : `${remaining}/${SLOT_TIMES.length}`;
+    const badge = remaining === 0 ? '마감' : `${remaining}/${ot.length}`;
     html += remaining > 0
       ? `<div class="cal-day ${cls}${isToday}" onclick="selectDate('${k}')"><div class="dn">${d}</div><div class="dc">${badge}</div></div>`
       : `<div class="cal-day ${cls}${isToday}"><div class="dn">${d}</div><div class="dc">${badge}</div></div>`;
@@ -1233,10 +1281,11 @@ window.selectDate = function (k) {
 function buildSlots() {
   if (!selDate) return;
   $('slots-grid').innerHTML = SLOT_TIMES.map(t => {
-    const taken = slotTaken(selDate, t);
-    const cls = taken ? 's-taken' : (selTime === t ? 's-sel' : 's-open');
-    return `<button class="slot-btn ${cls}" ${taken ? 'disabled' : `onclick="selectSlot('${t}')"`}>
-      <span class="slot-time">${fmtTime(t)}</span><span class="slot-status">${taken ? '예약마감' : '예약가능'}</span></button>`;
+    const taken = slotTaken(selDate, t), locked = isSlotLocked(selDate, t);
+    const cls = taken ? 's-taken' : locked ? 's-locked' : (selTime === t ? 's-sel' : 's-open');
+    const off = taken || locked;
+    return `<button class="slot-btn ${cls}" ${off ? 'disabled' : `onclick="selectSlot('${t}')"`}>
+      <span class="slot-time">${fmtTime(t)}</span><span class="slot-status">${taken ? '예약마감' : locked ? '예약불가' : '예약가능'}</span></button>`;
   }).join('');
 }
 
@@ -1265,6 +1314,7 @@ window.submitBooking = async function () {
   if (!selDate || !selTime) return showToast('날짜와 시간을 선택해 주세요.');
   if (!applicantBookable(selDate)) { showToast('선택한 날짜는 예약할 수 없습니다. 다른 날짜를 선택해 주세요.'); return goStep(1); }
   if (slotTaken(selDate, selTime)) { showToast('방금 다른 지원자가 선택한 시간입니다. 다른 시간을 선택해 주세요.'); buildSlots(); return goStep(2); }
+  if (isSlotLocked(selDate, selTime)) { showToast('선택한 시간은 예약이 마감되었습니다. 다른 시간을 선택해 주세요.'); buildSlots(); return goStep(2); }
 
   const btn = $('submit-btn'); btn.disabled = true;
   submitting = true;
@@ -1425,8 +1475,8 @@ function renderSchedule() {
   let html = '<thead><tr><th class="th-time">시간</th>';
   cols.forEach(k => {
     const d = keyToDate(k);
-    const cls = [HOLIDAYS[k] ? 'hol' : '', k === tk ? 'today-col' : ''].join(' ');
-    html += `<th class="${cls}">${d.getMonth() + 1}/${d.getDate()}<span class="sd">${DOW[d.getDay()]}${HOLIDAYS[k] ? ' · ' + esc(HOLIDAYS[k]) : ''}</span></th>`;
+    const cls = [HOLIDAYS[k] ? 'hol' : '', k === tk ? 'today-col' : '', blocked[k] ? 'blk' : ''].join(' ');
+    html += `<th class="${cls}" data-k="${k}" title="우클릭: 날짜 전체 잠금 · 해제">${d.getMonth() + 1}/${d.getDate()}<span class="sd">${DOW[d.getDay()]}${HOLIDAYS[k] ? ' · ' + esc(HOLIDAYS[k]) : ''}</span></th>`;
   });
   html += '</tr></thead><tbody>';
   SLOT_TIMES.forEach(t => {
@@ -1435,35 +1485,162 @@ function renderSchedule() {
       const x = bm[`${k}_${t}`];
       if (x) {
         const conf = x.b.status === 'confirmed';
-        html += `<td><span class="pill ${conf ? 'pill-conf' : 'pill-pend'}" title="${esc(x.c.name)} · ${esc(x.c.position || '')}" onclick="openDetail('${x.cid}')">${esc(x.c.name)}</span></td>`;
+        html += `<td data-k="${k}" data-t="${t}"><span class="pill ${conf ? 'pill-conf' : 'pill-pend'}" title="${esc(x.c.name)} · ${esc(x.c.position || '')}" onclick="openDetail('${x.cid}')">${esc(x.c.name)}</span></td>`;
       } else if (slotTaken(k, t)) {
-        html += `<td class="tc-orphan" title="예정자 정보와 연결되지 않은 예약 자리" onclick="clearOrphan('${k}','${t}')"></td>`;
+        html += `<td class="tc-orphan" data-k="${k}" data-t="${t}" title="예정자 정보와 연결되지 않은 예약 자리" onclick="clearOrphan('${k}','${t}')"></td>`;
       } else if (HOLIDAYS[k]) html += '<td class="tc-holiday"></td>';
-      else if (blocked[k]) html += '<td class="tc-blocked"></td>';
+      else if (isSlotLocked(k, t)) html += `<td class="tc-blocked" data-k="${k}" data-t="${t}" title="우클릭: 잠금 해제"></td>`;
       else if (k < tk) html += '<td class="tc-past"></td>';
-      else html += `<td class="tc-open" title="클릭하여 일정 추가" onclick="openSchedModal('add',null,'${k}','${t}')"></td>`;
+      else html += `<td class="tc-open" data-k="${k}" data-t="${t}" title="클릭: 일정 추가 · 우클릭: 시간 잠금" onclick="openSchedModal('add',null,'${k}','${t}')"></td>`;
     });
     html += '</tr>';
   });
   $('sched-tbl').innerHTML = html + '</tbody>';
 }
 
-window.blkMove = n => { blkM += n; if (blkM < 0) { blkM = 11; blkY--; } if (blkM > 11) { blkM = 0; blkY++; } renderMiniCal(); };
+window.blkMove = n => { blkM += n; if (blkM < 0) { blkM = 11; blkY--; } if (blkM > 11) { blkM = 0; blkY++; } blkSel = null; renderMiniCal(); };
 function renderMiniCal() {
   $('blk-title').textContent = `${blkY}년 ${blkM + 1}월`;
+  const tk = todayKey();
+  if (!blkSel && tk.startsWith(`${blkY}-${pad(blkM + 1)}`)) blkSel = tk;
+  const confCount = {};
+  allBookings().forEach(x => { if (x.b.status === 'confirmed') confCount[x.b.date] = (confCount[x.b.date] || 0) + 1; });
   let html = DOW.map((d, i) => `<div class="mini-dow${i === 0 || i === 6 ? ' red' : ''}">${d}</div>`).join('');
-  const first = new Date(blkY, blkM, 1).getDay(), days = new Date(blkY, blkM + 1, 0).getDate(), tk = todayKey();
+  const first = new Date(blkY, blkM, 1).getDay(), days = new Date(blkY, blkM + 1, 0).getDate();
   for (let i = 0; i < first; i++) html += '<div class="mini-day md-empty"></div>';
   for (let d = 1; d <= days; d++) {
     const k = dk(blkY, blkM, d);
     let cls = 'mini-day', click = '';
     if (!isBusinessDay(k)) cls += ' md-off';
-    else if (k < tk) cls += ' md-dis';
-    else { cls += blocked[k] ? ' md-blocked' : ' md-open'; click = `onclick="toggleBlock('${k}')"`; }
+    else {
+      click = `onclick="selectBlkDay('${k}')"`;
+      if (k < tk) cls += ' md-dis md-click';
+      else cls += blocked[k] ? ' md-blocked' : ' md-open';
+    }
     if (k === tk) cls += ' md-today';
-    html += `<div class="${cls}" ${click} title="${HOLIDAYS[k] ? esc(HOLIDAYS[k]) : ''}">${d}</div>`;
+    if (k === blkSel) cls += ' md-sel';
+    const badge = confCount[k] ? `<span class="md-badge">${confCount[k]}</span>` : '';
+    html += `<div class="${cls}" ${click} title="${HOLIDAYS[k] ? esc(HOLIDAYS[k]) : ''}">${d}${badge}</div>`;
   }
   $('mini-cal').innerHTML = html;
+  renderDayPanel();
+}
+window.selectBlkDay = k => { blkSel = k; renderMiniCal(); };
+
+function renderDayPanel() {
+  const k = blkSel, el = $('day-panel');
+  if (!k || !k.startsWith(`${blkY}-${pad(blkM + 1)}`)) {
+    el.innerHTML = '<div class="empty" style="padding:30px 8px;"><i class="ti ti-calendar-search"></i>날짜를 선택하면<br>확정된 면접 일정을 볼 수 있습니다.</div>';
+    return;
+  }
+  const tk = todayKey(), past = k < tk;
+  const list = allBookings().filter(x => x.b.date === k && x.b.status === 'confirmed');
+  const pendN = allBookings().filter(x => x.b.date === k && x.b.status !== 'confirmed').length;
+  const st = !isBusinessDay(k) ? '<span class="chip chip-none">휴무</span>' : blocked[k] ? '<span class="chip chip-none">잠금</span>' : past ? '<span class="chip chip-none">지난 날짜</span>' : '<span class="chip" style="background:var(--c-avail-bg);color:var(--c-avail-tx);border:1px solid var(--c-avail-bd);">예약 가능</span>';
+  let h = `<div class="day-panel-head"><div class="day-panel-date">${esc(fmtDate(k))}</div>${st}</div>`;
+  h += list.length ? list.map(x => `
+    <div class="day-item" onclick="openDetail('${x.cid}')">
+      <div class="day-time">${fmtTime(x.b.time)}</div>
+      <div class="day-main">
+        <div class="day-name">${esc(x.c.name)}<span>${esc(x.c.position || '-')}</span></div>
+        <div class="day-phone"><a href="tel:${esc(x.c.phone)}" onclick="event.stopPropagation()">${esc(fmtPhone(x.c.phone))}</a></div>
+      </div>
+      <i class="ti ti-chevron-right" style="color:var(--ink-4);"></i>
+    </div>`).join('') : '<div class="field-help" style="text-align:center;padding:18px 0;">확정된 면접 일정이 없습니다.</div>';
+  const notes = [];
+  if (pendN) notes.push(`승인 대기 ${pendN}건은 상단 '승인 대기 요청'에서 확인할 수 있습니다.`);
+  if (!blocked[k] && hasSlotLocks(k)) notes.push(`잠긴 시간: ${Object.keys(blockedSlots[k]).sort().map(fmtTime).join(', ')}`);
+  if (notes.length) h += `<div class="day-note">${notes.map(esc).join('<br>')}</div>`;
+  if (isBusinessDay(k) && !past) {
+    h += `<div style="margin-top:12px;"><button class="btn btn-line btn-sm" style="width:100%;" onclick="setDayLock('${k}',${blocked[k] ? 'false' : 'true'})"><i class="ti ${blocked[k] ? 'ti-lock-open' : 'ti-lock'}"></i>${blocked[k] ? '이 날짜 잠금 해제' : '이 날짜 전체 잠금'}</button></div>`;
+  }
+  el.innerHTML = h;
+}
+
+// ── 잠금 처리 (날짜 전체 / 시간별) ──
+window.setDayLock = async function (k, lock) {
+  const u = {};
+  u[`blocked/${k}`] = lock ? true : null;
+  if (lock) u[`blockedSlots/${k}`] = null;   // 날짜 전체 잠금이 시간별 잠금을 대체
+  u[`logs/${newKey('logs')}`] = { ts: Date.now(), actor: adminName(), action: 'lock', message: `${fmtShort(k)} 예약창 전체를 ${lock ? '잠금' : '해제'}했습니다.` };
+  try { await FB.update(R(''), u); showToast(`${fmtShort(k)} 전체 ${lock ? '잠금' : '해제'} 완료`); }
+  catch (e) { showToast('처리 권한이 없거나 연결이 불안정합니다.'); }
+};
+window.setSlotLock = async function (k, t, lock) {
+  const u = {};
+  u[`blockedSlots/${k}/${t}`] = lock ? true : null;
+  u[`logs/${newKey('logs')}`] = { ts: Date.now(), actor: adminName(), action: 'lock', message: `${fmtShort(k)} ${fmtTime(t)} 예약창을 ${lock ? '잠금' : '해제'}했습니다.` };
+  try { await FB.update(R(''), u); showToast(`${fmtShort(k)} ${fmtTime(t)} ${lock ? '잠금' : '해제'} 완료`); }
+  catch (e) { showToast('처리 권한이 없거나 연결이 불안정합니다.'); }
+};
+window.clearSlotLocks = async function (k) {
+  const u = {};
+  u[`blockedSlots/${k}`] = null;
+  u[`logs/${newKey('logs')}`] = { ts: Date.now(), actor: adminName(), action: 'lock', message: `${fmtShort(k)} 시간별 잠금을 모두 해제했습니다.` };
+  try { await FB.update(R(''), u); showToast(`${fmtShort(k)} 시간별 잠금 해제 완료`); }
+  catch (e) { showToast('처리 권한이 없거나 연결이 불안정합니다.'); }
+};
+
+// ── 스케줄표 우클릭(모바일 길게 누르기) 메뉴 ──
+let ctxActions = [];
+function closeCtx() { $('ctx-menu').classList.remove('open'); ctxActions = []; }
+window.ctxRun = i => { const f = ctxActions[i]; closeCtx(); if (f) f(); };
+function showCtx(x, y, title, items) {
+  const m = $('ctx-menu');
+  ctxActions = [];
+  m.innerHTML = `<div class="ctx-title">${esc(title)}</div>` + items.map(it => {
+    if (it.sep) return '<div class="ctx-sep"></div>';
+    if (it.note) return `<div class="ctx-note">${esc(it.note)}</div>`;
+    ctxActions.push(it.fn);
+    return `<button class="ctx-item" onclick="ctxRun(${ctxActions.length - 1})"><i class="ti ${it.icon}"></i>${esc(it.label)}</button>`;
+  }).join('');
+  m.classList.add('open');
+  const r = m.getBoundingClientRect();
+  m.style.left = Math.max(8, Math.min(x, window.innerWidth - r.width - 8)) + 'px';
+  m.style.top = Math.max(8, Math.min(y, window.innerHeight - r.height - 8)) + 'px';
+}
+function schedCtx(target, x, y) {
+  if (mode !== 'admin') return false;
+  const cell = target.closest('[data-k]');
+  if (!cell || !$('sched-tbl').contains(cell)) return false;
+  const k = cell.dataset.k, t = cell.dataset.t || null;
+  const items = [];
+  const title = t ? `${fmtShort(k)} ${fmtTime(t)}` : `${fmtShort(k)} 전체`;
+  if (HOLIDAYS[k]) items.push({ note: '공휴일은 예약이 열리지 않습니다.' });
+  else if (k < todayKey()) items.push({ note: '지난 날짜는 잠금 상태를 바꿀 수 없습니다.' });
+  else if (blocked[k]) {
+    if (t) items.push({ note: '이 날짜는 전체가 잠겨 있습니다.' });
+    items.push({ icon: 'ti-lock-open', label: '날짜 전체 잠금 해제', fn: () => setDayLock(k, false) });
+  } else if (t) {
+    const locked = isSlotLocked(k, t);
+    items.push(locked ? { icon: 'ti-lock-open', label: '이 시간 잠금 해제', fn: () => setSlotLock(k, t, false) }
+                      : { icon: 'ti-lock', label: '이 시간만 잠금', fn: () => setSlotLock(k, t, true) });
+    if (!locked && slotTaken(k, t)) items.push({ note: '이미 예약된 시간입니다. 잠가도 기존 예약은 유지됩니다.' });
+    items.push({ sep: true });
+    items.push({ icon: 'ti-calendar-off', label: '날짜 전체 잠금', fn: () => setDayLock(k, true) });
+  } else {
+    items.push({ icon: 'ti-calendar-off', label: '날짜 전체 잠금', fn: () => setDayLock(k, true) });
+    if (hasSlotLocks(k)) items.push({ icon: 'ti-lock-open', label: '시간별 잠금 모두 해제', fn: () => clearSlotLocks(k) });
+  }
+  showCtx(x, y, title, items);
+  return true;
+}
+function setupSchedCtx() {
+  const tbl = $('sched-tbl');
+  tbl.addEventListener('contextmenu', e => { if (schedCtx(e.target, e.clientX, e.clientY)) e.preventDefault(); });
+  let lpTimer = null, lpFired = false;
+  tbl.addEventListener('touchstart', e => {
+    lpFired = false;
+    const tc = e.touches[0], tgt = e.target;
+    clearTimeout(lpTimer);
+    lpTimer = setTimeout(() => { if (schedCtx(tgt, tc.clientX, tc.clientY)) { lpFired = true; try { navigator.vibrate && navigator.vibrate(15); } catch (x) {} } }, 550);
+  }, { passive: true });
+  tbl.addEventListener('touchmove', () => clearTimeout(lpTimer), { passive: true });
+  tbl.addEventListener('touchend', e => { clearTimeout(lpTimer); if (lpFired) { e.preventDefault(); lpFired = false; } });
+  document.addEventListener('click', e => { if (!$('ctx-menu').contains(e.target)) closeCtx(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCtx(); });
+  window.addEventListener('scroll', closeCtx, true);
+  window.addEventListener('resize', closeCtx);
 }
 
 window.toggleBlock = async function (k) {
@@ -1803,7 +1980,7 @@ window.fillTimeOptions = function (keepT) {
   $('sc-time').innerHTML = SLOT_TIMES.map(t => {
     const mine = own && own.date === k && own.time === t;
     const taken = slotTaken(k, t) && !mine;
-    return `<option value="${t}" ${taken ? 'disabled' : ''}>${fmtTime(t)}${taken ? ' (예약됨)' : mine ? ' (현재)' : ''}</option>`;
+    return `<option value="${t}" ${taken ? 'disabled' : ''}>${fmtTime(t)}${taken ? ' (예약됨)' : mine ? ' (현재)' : isSlotLocked(k, t) ? ' (잠금)' : ''}</option>`;
   }).join('');
   const keepOpt = keepT ? $('sc-time').querySelector(`option[value="${keepT}"]`) : null;
   const first = keepOpt && !keepOpt.disabled ? keepT : [...$('sc-time').options].find(o => !o.disabled)?.value;
@@ -2073,6 +2250,7 @@ async function init() {
     return;
   }
   attachPublic();
+  setupSchedCtx();
   refreshBell();
   let first = true;
   FB.onAuthStateChanged(FB.auth, async user => {
