@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#2D2D2D">
+<meta name="robots" content="noindex, nofollow">
+<title>안투안 면접 스케줄러</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --ink:#2D2D2D;--ink-2:#555555;--ink-3:#8C8C8C;--ink-4:#BDBDBD;
+  --white:#FFFFFF;
+  --pink-50:#FFF9FA;--pink-100:#FDF1F4;--pink-200:#F9E1E7;--pink-300:#F2C9D3;--pink-500:#D9879C;--pink-700:#A4486A;
+  --line:#F0E4E8;
+  /* 여유·혼잡·마감·예약불가 (기존 컬러 유지) */
+  --c-avail-bg:#FAF8F5;--c-avail-bd:#C8B89A;--c-avail-tx:#7A6045;
+  --c-crowd-bg:#FFF3E6;--c-crowd-bd:#F2C7A2;--c-crowd-tx:#C96D28;
+  --c-full-bg:#FCEBEB;--c-full-bd:#E24B4A;--c-full-tx:#A32D2D;
+  --c-block-bg:#F0F0F0;--c-block-bd:#BBBBBB;--c-block-tx:#888888;
+  --c-dis-bg:#F7F7F7;--c-dis-tx:#C4C4C4;
+  --holiday:#D9534F;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:18px;
+  --shadow-sm:0 2px 8px rgba(45,45,45,0.05);--shadow-md:0 8px 24px rgba(45,45,45,0.08);--shadow-lg:0 16px 48px rgba(45,45,45,0.14);
+}
+html,body{font-family:'Noto Sans KR',sans-serif;}
+body{background:var(--pink-50);color:var(--ink);min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.5;}
+button,input,select,textarea{font-family:'Noto Sans KR',sans-serif;}
+button{cursor:pointer;}
+a{color:inherit;}
+
+/* ── 로딩 ── */
+#loading-overlay{position:fixed;inset:0;background:var(--pink-50);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;}
+.loader-spinner{width:38px;height:38px;border:3px solid var(--pink-200);border-top-color:var(--ink);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:14px;color:var(--ink-3);font-weight:500;line-height:1.7;}
+
+/* ── 진입 게이트 ── */
+#auth-gate{position:fixed;inset:0;background:linear-gradient(165deg,var(--pink-50) 0%,var(--pink-100) 100%);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.gate-wrap{width:100%;max-width:420px;margin:auto;}
+.gate-card{background:var(--white);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);overflow:hidden;}
+.gate-header{background:var(--ink);padding:28px 24px;text-align:center;color:var(--white);}
+.gate-header .gh-icon{width:48px;height:48px;border-radius:14px;background:rgba(249,225,231,0.16);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px;color:var(--pink-300);}
+.gate-header h1{font-size:19px;font-weight:700;margin-bottom:6px;letter-spacing:-0.3px;}
+.gate-header p{font-size:13px;color:rgba(255,255,255,0.65);}
+.gate-body{padding:24px;}
+.gate-btn{width:100%;padding:15px;border-radius:var(--radius-md);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;}
+.gate-btn-main{background:var(--ink);color:var(--white);border:none;}
+.gate-btn-main:active{opacity:.85;}
+.gate-btn-sub{background:var(--white);color:var(--ink);border:1.5px solid var(--line);margin-top:12px;}
+.gate-btn-sub:hover{border-color:var(--pink-300);background:var(--pink-50);}
+.gate-form{margin-top:14px;background:var(--pink-50);border:1px solid var(--line);border-radius:var(--radius-md);padding:16px;display:none;}
+.gate-form.open{display:block;}
+.gate-form .field-group{margin-bottom:10px;}
+.gate-hint{font-size:12px;color:var(--ink-3);margin-top:10px;line-height:1.6;text-align:center;}
+.gate-divider{display:flex;align-items:center;gap:10px;color:var(--ink-4);font-size:12px;margin:18px 0 6px;}
+.gate-btn-google{background:var(--white);color:var(--ink);border:1.5px solid var(--ink);margin-top:12px;}
+.gate-btn-google:hover{background:var(--pink-50);}
+.gate-btn-google svg{width:19px;height:19px;flex-shrink:0;}
+.gate-link{display:block;width:100%;background:none;border:none;color:var(--ink-3);font-size:12px;margin-top:12px;text-decoration:underline;text-underline-offset:3px;}
+.perm-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:var(--radius-md);margin-bottom:8px;background:var(--white);}
+.perm-main{flex:1;min-width:0;}
+.perm-name{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.perm-sub{font-size:12px;color:var(--ink-3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gate-divider::before,.gate-divider::after{content:"";flex:1;height:1px;background:var(--line);}
+
+/* ── 앱 레이아웃 ── */
+.app{display:none;max-width:760px;margin:0 auto;min-height:100vh;background:var(--white);box-shadow:0 0 0 1px var(--line);}
+.app-header{background:var(--ink);color:var(--white);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:100;}
+.app-header-left{display:flex;align-items:center;gap:10px;min-width:0;}
+.app-header-icon{width:36px;height:36px;background:rgba(249,225,231,0.16);color:var(--pink-300);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.app-header-title{font-size:16px;font-weight:700;letter-spacing:-0.3px;}
+.app-header-sub{font-size:12px;color:rgba(255,255,255,0.6);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.app-header-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.hdr-btn{height:32px;min-width:32px;padding:0 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:var(--white);font-size:12px;font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:4px;position:relative;}
+.hdr-btn i{font-size:16px;}
+.hdr-btn .dotbadge{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:99px;background:var(--pink-500);color:var(--white);font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;}
+.db-dot{width:8px;height:8px;border-radius:50%;background:#999;flex-shrink:0;}
+.db-dot.on{background:#5CC98A;animation:pulse 2s infinite;}
+.db-dot.off{background:#E5534B;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.role-badge{background:rgba(249,225,231,0.18);color:var(--pink-300);font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;border:1px solid rgba(242,201,211,0.35);white-space:nowrap;}
+
+.tabs{display:flex;border-bottom:1px solid var(--line);background:var(--white);position:sticky;top:64px;z-index:90;}
+.tab{flex:1;min-width:0;padding:11px 6px 10px;font-size:13px;font-weight:500;border:none;background:transparent;color:var(--ink-3);border-bottom:2.5px solid transparent;margin-bottom:-1px;white-space:nowrap;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;transition:color .2s;}
+.tab i{font-size:19px;}
+.tab.active{color:var(--ink);font-weight:700;border-bottom-color:var(--ink);}
+.tab-badge{position:absolute;top:6px;left:calc(50% + 8px);min-width:17px;height:17px;padding:0 5px;border-radius:99px;background:var(--pink-500);color:var(--white);font-size:10px;font-weight:700;display:none;align-items:center;justify-content:center;}
+.panel{display:none;padding:20px;}
+.panel.active{display:block;}
+
+/* ── 공통 카드/섹션 ── */
+.section{margin-bottom:22px;}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.section-title{font-size:15px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px;}
+.section-title i{font-size:18px;color:var(--pink-500);}
+.section-sub{font-size:12px;color:var(--ink-3);}
+.card{background:var(--white);border:1px solid var(--line);border-radius:var(--radius-md);padding:16px;}
+.card-soft{background:var(--pink-50);border:1px solid var(--line);border-radius:var(--radius-md);padding:16px;}
+.notice{background:var(--pink-100);border:1px solid var(--pink-200);border-radius:var(--radius-md);padding:14px 16px;display:flex;gap:10px;align-items:flex-start;margin-bottom:20px;}
+.notice i{font-size:19px;color:var(--pink-700);flex-shrink:0;margin-top:1px;}
+.notice-text{font-size:13px;color:var(--ink-2);line-height:1.75;}
+.notice-text strong{color:var(--ink);font-weight:700;display:block;margin-bottom:2px;}
+.empty{text-align:center;padding:28px 12px;color:var(--ink-4);font-size:13px;line-height:1.7;}
+.empty i{font-size:32px;display:block;margin-bottom:8px;color:var(--pink-300);}
+
+/* ── 달력 ── */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.icon-btn{width:36px;height:36px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--ink-2);font-size:18px;transition:all .2s;flex-shrink:0;}
+.icon-btn:active{background:var(--pink-100);}
+.icon-btn:disabled{opacity:.35;cursor:not-allowed;}
+.cal-title{font-size:17px;font-weight:700;color:var(--ink);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;}
+.cal-dow{text-align:center;font-size:12px;color:var(--ink-3);font-weight:500;padding:4px 0;}
+.cal-dow.sun,.cal-dow.sat{color:var(--holiday);}
+.cal-day{border-radius:var(--radius-sm);padding:7px 2px 6px;text-align:center;border:1px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;height:66px;transition:all .15s;overflow:hidden;}
+.cal-day .dn{font-size:14px;font-weight:700;line-height:1.2;}
+.cal-day .dc{font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;line-height:1.5;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cal-day .hn{font-size:9.5px;font-weight:500;color:var(--holiday);line-height:1.3;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px;}
+.cal-day.empty{background:transparent;}
+.cal-day.dis{background:var(--c-dis-bg);}
+.cal-day.dis .dn{color:var(--c-dis-tx);}
+.cal-day.dis .dc{color:var(--ink-4);background:transparent;padding:0;}
+.cal-day.off{background:var(--c-dis-bg);}
+.cal-day.off .dn{color:var(--holiday);opacity:.6;}
+.cal-day.blocked{background:var(--c-block-bg);border-color:var(--c-block-bd);}
+.cal-day.blocked .dn{color:var(--c-block-tx);}
+.cal-day.blocked .dc{background:var(--c-block-bd);color:#fff;}
+.cal-day.avail{background:var(--c-avail-bg);border-color:var(--c-avail-bd);cursor:pointer;}
+.cal-day.avail .dn{color:var(--c-avail-tx);}
+.cal-day.avail .dc{background:var(--c-avail-tx);color:#fff;}
+.cal-day.crowd{background:var(--c-crowd-bg);border-color:var(--c-crowd-bd);cursor:pointer;}
+.cal-day.crowd .dn{color:var(--c-crowd-tx);}
+.cal-day.crowd .dc{background:var(--c-crowd-tx);color:#fff;}
+.cal-day.full{background:var(--c-full-bg);border-color:var(--c-full-bd);}
+.cal-day.full .dn{color:var(--c-full-tx);}
+.cal-day.full .dc{background:var(--c-full-bd);color:#fff;}
+.cal-day.today{box-shadow:inset 0 0 0 1.5px var(--pink-500);}
+.cal-day.selected{background:var(--ink)!important;border-color:var(--ink)!important;}
+.cal-day.selected .dn{color:#fff!important;}
+.cal-day.selected .dc{background:rgba(255,255,255,0.22)!important;color:#fff!important;}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;background:var(--pink-50);border:1px solid var(--line);border-radius:var(--radius-md);padding:10px 14px;margin:14px 0 18px;justify-content:center;}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--ink-2);}
+.leg-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.leg-red{color:var(--holiday);font-weight:700;}
+
+.info-list{list-style:none;font-size:13px;color:var(--ink-2);line-height:1.9;}
+.info-list li{display:flex;gap:6px;}
+.info-list li::before{content:"•";color:var(--pink-500);font-weight:700;}
+.info-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.info-title i{font-size:17px;color:var(--pink-500);}
+
+/* ── 단계/슬롯 ── */
+.step-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.step-title{font-size:16px;font-weight:700;color:var(--ink);}
+.step-sub{font-size:12px;color:var(--ink-3);margin-top:2px;}
+.slots-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px;}
+@media(min-width:520px){.slots-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+.slot-btn{padding:14px 8px;border-radius:var(--radius-md);border:1.5px solid var(--line);background:var(--white);text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink);}
+.slot-btn .slot-time{font-size:17px;font-weight:700;}
+.slot-btn .slot-status{font-size:11px;font-weight:500;color:var(--ink-3);}
+.slot-btn.s-open:active,.slot-btn.s-open:hover{background:var(--c-avail-bg);border-color:var(--c-avail-bd);}
+.slot-btn.s-taken{background:var(--c-full-bg);border-color:var(--c-full-bd);color:var(--c-full-tx);cursor:not-allowed;}
+.slot-btn.s-taken .slot-status{color:var(--c-full-tx);}
+.slot-btn.s-sel{background:var(--ink);border-color:var(--ink);color:#fff;}
+.slot-btn.s-sel .slot-status{color:rgba(255,255,255,0.7);}
+.slot-note{font-size:12px;color:var(--ink-3);text-align:center;margin-bottom:16px;}
+
+/* ── 폼 ── */
+.field-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px;}
+.field-row.one{grid-template-columns:1fr;}
+.field-group{min-width:0;}
+.field-label{font-size:12px;color:var(--ink-2);font-weight:500;display:block;margin-bottom:6px;}
+.field-label .req{color:var(--pink-700);}
+.field-input{width:100%;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);border-radius:var(--radius-sm);background:var(--white);color:var(--ink);-webkit-appearance:none;appearance:none;transition:border-color .2s;}
+select.field-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238C8C8C' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
+.field-input:focus{outline:none;border-color:var(--pink-500);}
+.field-input::placeholder{color:var(--ink-4);}
+.field-help{font-size:11px;color:var(--ink-3);margin-top:5px;line-height:1.5;}
+
+/* ── 버튼 ── */
+.btn{padding:12px 16px;border-radius:var(--radius-sm);font-size:14px;font-weight:700;border:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:opacity .2s;white-space:nowrap;}
+.btn:active{opacity:.85;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn i{font-size:17px;}
+.btn-block{width:100%;padding:15px;font-size:15px;border-radius:var(--radius-md);}
+.btn-ink{background:var(--ink);color:var(--white);}
+.btn-pink{background:var(--pink-200);color:var(--pink-700);}
+.btn-line{background:var(--white);color:var(--ink);border:1.5px solid var(--line);}
+.btn-danger{background:var(--c-full-tx);color:var(--white);}
+.btn-sm{padding:8px 12px;font-size:12px;border-radius:7px;}
+.btn-sm i{font-size:15px;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* ── 상태 칩 ── */
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap;}
+.chip-none{background:#F2F2F2;color:var(--ink-3);}
+.chip-pend{background:var(--pink-200);color:var(--pink-700);}
+.chip-conf{background:var(--ink);color:var(--white);}
+
+/* ── 지원자 상태 트래커 ── */
+.tracker{display:flex;align-items:flex-start;margin:4px 0 20px;}
+.trk-step{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;text-align:center;}
+.trk-step:not(:last-child)::after{content:"";position:absolute;top:15px;left:calc(50% + 18px);right:calc(-50% + 18px);height:2px;background:var(--line);}
+.trk-step.done:not(:last-child)::after{background:var(--ink);}
+.trk-dot{width:32px;height:32px;border-radius:50%;background:var(--white);border:2px solid var(--line);color:var(--ink-4);display:flex;align-items:center;justify-content:center;font-size:16px;z-index:1;}
+.trk-step.done .trk-dot{background:var(--ink);border-color:var(--ink);color:#fff;}
+.trk-step.active .trk-dot{background:var(--pink-200);border-color:var(--pink-500);color:var(--pink-700);}
+.trk-label{font-size:12px;font-weight:500;color:var(--ink-3);}
+.trk-step.done .trk-label,.trk-step.active .trk-label{color:var(--ink);font-weight:700;}
+
+.kv{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid var(--pink-100);font-size:13px;}
+.kv:last-child{border-bottom:none;}
+.kv .k{color:var(--ink-3);font-weight:500;flex-shrink:0;}
+.kv .v{color:var(--ink);font-weight:700;text-align:right;word-break:break-all;}
+
+/* ── 관리자: 통계 ── */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:22px;}
+@media(max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.stat{background:var(--white);border:1px solid var(--line);border-radius:var(--radius-md);padding:14px 8px;text-align:center;}
+.stat.hl{background:var(--pink-100);border-color:var(--pink-200);}
+.stat-val{font-size:24px;font-weight:700;color:var(--ink);line-height:1.2;}
+.stat.hl .stat-val{color:var(--pink-700);}
+.stat-label{font-size:12px;color:var(--ink-3);margin-top:4px;font-weight:500;}
+
+/* ── 승인 대기 리스트 ── */
+.req-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--pink-200);background:var(--pink-50);border-radius:var(--radius-md);margin-bottom:8px;}
+.req-main{flex:1;min-width:0;}
+.req-name{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.req-name span{font-weight:500;color:var(--ink-3);font-size:12px;margin-left:4px;}
+.req-when{font-size:13px;color:var(--ink-2);margin-top:2px;}
+.req-meta{font-size:11px;color:var(--ink-3);margin-top:2px;}
+.req-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* ── 스케줄 테이블 ── */
+.sched-nav{display:flex;align-items:center;gap:8px;}
+.sched-range{font-size:13px;font-weight:700;color:var(--ink);min-width:118px;text-align:center;}
+.sched-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius-md);border:1px solid var(--line);}
+.sched-tbl{border-collapse:collapse;width:100%;min-width:640px;table-layout:fixed;}
+.sched-tbl th,.sched-tbl td{border:1px solid var(--pink-100);}
+.sched-tbl tr:first-child th{border-top:none;}
+.sched-tbl tr th:first-child,.sched-tbl tr td:first-child{border-left:none;}
+.sched-tbl tr th:last-child,.sched-tbl tr td:last-child{border-right:none;}
+.sched-tbl tbody tr:last-child td{border-bottom:none;}
+.sched-tbl th{font-size:12px;font-weight:700;padding:8px 2px;text-align:center;background:var(--pink-50);color:var(--ink);line-height:1.35;}
+.sched-tbl th .sd{display:block;font-size:10px;font-weight:500;color:var(--ink-3);}
+.sched-tbl th.th-time{width:56px;}
+.sched-tbl th.hol{color:var(--holiday);}
+.sched-tbl th.today-col{background:var(--pink-200);}
+.sched-tbl td{font-size:11px;padding:4px 3px;text-align:center;height:46px;vertical-align:middle;}
+.tc-time{font-weight:700;color:var(--ink-2);background:var(--pink-50);font-size:12px!important;}
+.tc-open{background:var(--white);cursor:pointer;}
+.tc-open:hover{background:var(--c-avail-bg);}
+.tc-open:hover::after{content:"+";color:var(--c-avail-tx);font-size:16px;font-weight:700;}
+.tc-past{background:#FAFAFA;}
+.tc-blocked{background:var(--c-block-bg);}
+.tc-blocked::after{content:"잠금";font-size:10px;color:var(--c-block-tx);font-weight:500;}
+.tc-holiday{background:#FBF3F3;}
+.tc-holiday::after{content:"휴일";font-size:10px;color:#D9A3A1;font-weight:500;}
+.tc-orphan{background:#FFF8E6;cursor:pointer;}
+.tc-orphan::after{content:"확인필요";font-size:10px;color:#B7791F;font-weight:700;}
+.pill{display:block;border-radius:5px;padding:6px 3px;font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;cursor:pointer;}
+.pill-pend{background:var(--pink-200);color:var(--pink-700);}
+.pill-conf{background:var(--ink);color:var(--white);}
+.sched-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-size:11px;color:var(--ink-3);margin-top:10px;}
+.sched-legend span{display:inline-flex;align-items:center;gap:5px;}
+.sched-legend b{width:12px;height:12px;border-radius:3px;display:inline-block;}
+
+/* ── 잠금 미니 달력 ── */
+.mini-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0;}
+.mini-dow{text-align:center;font-size:11px;color:var(--ink-3);font-weight:500;padding:3px 0;}
+.mini-dow.red{color:var(--holiday);}
+.mini-day{height:34px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border-radius:6px;border:1px solid transparent;}
+.mini-day.md-empty{background:transparent;}
+.mini-day.md-dis{background:var(--c-dis-bg);color:var(--c-dis-tx);}
+.mini-day.md-off{background:var(--c-dis-bg);color:var(--holiday);opacity:.55;}
+.mini-day.md-open{background:var(--white);border-color:var(--c-avail-bd);color:var(--c-avail-tx);cursor:pointer;}
+.mini-day.md-open:hover{background:var(--c-avail-bg);}
+.mini-day.md-blocked{background:var(--c-block-bg);border-color:var(--c-block-bd);color:var(--c-block-tx);cursor:pointer;text-decoration:line-through;}
+.mini-day.md-today{box-shadow:0 0 0 2px var(--pink-500);}
+
+/* ── 목록 테이블 ── */
+.list-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:var(--radius-md);}
+.list-tbl{border-collapse:collapse;width:100%;min-width:560px;font-size:13px;}
+.list-tbl th{background:var(--pink-50);font-size:12px;font-weight:700;color:var(--ink-2);padding:10px 8px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap;}
+.list-tbl td{padding:10px 8px;border-bottom:1px solid var(--pink-100);text-align:center;vertical-align:middle;white-space:nowrap;}
+.list-tbl tr:last-child td{border-bottom:none;}
+.list-tbl td.l{text-align:left;}
+
+/* ── 지원자 카드 ── */
+.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.search-box{flex:1;min-width:180px;position:relative;}
+.search-box i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-4);font-size:17px;}
+.search-box .field-input{padding-left:36px;}
+.filter-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.filter-chip{padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--white);font-size:12px;font-weight:500;color:var(--ink-2);}
+.filter-chip.on{background:var(--ink);border-color:var(--ink);color:var(--white);font-weight:700;}
+.cand-card{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:var(--radius-md);margin-bottom:8px;cursor:pointer;background:var(--white);transition:border-color .2s;}
+.cand-card:hover{border-color:var(--pink-300);}
+.cand-avatar{width:40px;height:40px;border-radius:50%;background:var(--pink-100);color:var(--pink-700);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;}
+.cand-main{flex:1;min-width:0;}
+.cand-name{font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.cand-sub{font-size:12px;color:var(--ink-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cand-icons{display:flex;gap:6px;color:var(--ink-4);font-size:16px;flex-shrink:0;}
+.cand-icons .on{color:var(--pink-500);}
+
+/* ── 첨부/링크 ── */
+.att-list{display:flex;flex-direction:column;gap:6px;}
+.att-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--white);}
+.att-item i.ft{font-size:20px;color:var(--pink-500);flex-shrink:0;}
+.att-name{flex:1;min-width:0;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.att-name small{display:block;font-size:11px;color:var(--ink-3);font-weight:400;}
+.att-btn{padding:6px 10px;border-radius:6px;border:none;background:var(--ink);color:#fff;font-size:12px;font-weight:700;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;gap:3px;}
+.att-btn.line{background:var(--white);color:var(--ink);border:1px solid var(--line);}
+.att-x{width:28px;height:28px;border-radius:6px;border:1px solid var(--line);background:var(--white);color:var(--ink-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sub-title{font-size:12px;font-weight:700;color:var(--ink-2);margin:16px 0 8px;display:flex;align-items:center;gap:5px;}
+.link-edit-row{display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,1.6fr) 36px;gap:6px;margin-bottom:6px;}
+.link-edit-row .field-input{font-size:14px;padding:9px 10px;}
+.file-drop{border:1.5px dashed var(--pink-300);border-radius:var(--radius-sm);background:var(--pink-50);padding:12px;text-align:center;font-size:13px;color:var(--ink-2);cursor:pointer;display:block;}
+.file-drop i{font-size:20px;color:var(--pink-500);display:block;margin-bottom:2px;}
+.file-drop input{display:none;}
+
+/* ── 로그 ── */
+.log-row{display:flex;gap:12px;padding:11px 4px;border-bottom:1px solid var(--pink-100);font-size:13px;align-items:flex-start;}
+.log-row:last-child{border-bottom:none;}
+.log-ts{flex:0 0 118px;color:var(--ink-3);font-variant-numeric:tabular-nums;font-size:12px;padding-top:1px;}
+.log-body{flex:1;min-width:0;line-height:1.65;color:var(--ink-2);}
+.log-badge{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:700;margin-right:5px;}
+.lb-create{background:var(--c-avail-bg);color:var(--c-avail-tx);border:1px solid var(--c-avail-bd);}
+.lb-approve{background:var(--ink);color:#fff;}
+.lb-change{background:var(--c-crowd-bg);color:var(--c-crowd-tx);}
+.lb-cancel{background:var(--c-full-bg);color:var(--c-full-tx);}
+.lb-register{background:var(--pink-200);color:var(--pink-700);}
+.lb-perm{background:#EDEAF7;color:#5B4C9A;}
+.lb-lock{background:var(--c-block-bg);color:var(--c-block-tx);}
+.log-actor{color:var(--ink);font-weight:700;font-size:12px;margin-right:4px;}
+@media(max-width:480px){.log-row{flex-direction:column;gap:2px;}.log-ts{flex:none;}}
+
+/* ── 모달 ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(45,45,45,0.5);z-index:10000;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+@media(min-width:560px){.modal-overlay{align-items:center;padding:20px;}}
+.modal-sheet{background:var(--white);border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));width:100%;max-width:520px;max-height:92vh;overflow-y:auto;box-shadow:0 -6px 30px rgba(45,45,45,0.15);}
+@media(min-width:560px){.modal-sheet{border-radius:var(--radius-lg);}}
+.modal-handle{width:38px;height:4px;background:var(--pink-200);border-radius:99px;margin:0 auto 16px;}
+@media(min-width:560px){.modal-handle{display:none;}}
+.modal-title{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--ink);display:flex;align-items:center;gap:8px;}
+.modal-title i{font-size:20px;color:var(--pink-500);}
+.modal-btns{display:flex;gap:8px;margin-top:18px;}
+.modal-btns .btn{flex:1;padding:13px 6px;}
+.modal-btns.wrap{flex-wrap:wrap;}
+.modal-btns.wrap .btn{flex:1 1 calc(50% - 4px);}
+.agree-box{background:var(--pink-100);border:1px solid var(--pink-200);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--ink-2);line-height:1.75;margin:14px 0 10px;}
+.agree-box strong{color:var(--pink-700);}
+.check-row{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--ink);font-weight:500;cursor:pointer;padding:4px 0;}
+.check-row input{width:18px;height:18px;margin-top:1px;flex-shrink:0;accent-color:var(--ink);}
+.done-wrap{text-align:center;padding:6px 0 0;}
+.done-icon{width:64px;height:64px;border-radius:50%;background:var(--pink-100);color:var(--pink-700);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:32px;}
+.done-title{font-size:19px;font-weight:700;margin-bottom:8px;}
+.done-sub{font-size:14px;color:var(--ink-2);line-height:1.75;margin-bottom:16px;}
+.done-sub strong{color:var(--pink-700);}
+
+/* ── 토스트 ── */
+.toast{display:none;position:fixed;bottom:calc(24px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 22px;border-radius:99px;font-size:13px;font-weight:500;z-index:100001;box-shadow:var(--shadow-md);max-width:90vw;text-align:center;line-height:1.5;}
+.toast.show{display:block;animation:toastIn .3s ease;}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+
+@media(max-width:420px){
+  .panel{padding:16px;}
+  .field-row{grid-template-columns:1fr;}
+  .cal-grid{gap:3px;}
+  .cal-day{height:60px;padding:6px 1px;}
+  .cal-day .dc{padding:1px 4px;}
+  .req-item{flex-wrap:wrap;}
+  .req-actions{width:100%;}
+  .req-actions .btn{flex:1;}
+}
+</style>
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div class="loader-spinner" id="loader-spinner"></div>
+  <div class="loader-text" id="loader-text">데이터 연결 중...</div>
+</div>
+
+<!-- ══ 진입 게이트 ══ -->
+<div id="auth-gate">
+  <div class="gate-wrap">
+    <div class="gate-card">
+      <div class="gate-header">
+        <div class="gh-icon"><i class="ti ti-calendar-user"></i></div>
+        <h1>안투안 면접 스케줄러</h1>
+        <p>서류전형 합격자 면접 일정 예약 및 관리</p>
+      </div>
+      <div class="gate-body">
+        <button class="gate-btn gate-btn-main" onclick="toggleGate('ap')">
+          <i class="ti ti-user-check" style="font-size:20px;"></i>면접 예정자 로그인
+        </button>
+        <div class="gate-form" id="gate-ap">
+          <div class="field-group">
+            <label class="field-label">이름</label>
+            <input type="text" class="field-input" id="ap-name" placeholder="홍길동" autocomplete="name">
+          </div>
+          <div class="field-group">
+            <label class="field-label">휴대폰 번호</label>
+            <input type="tel" class="field-input" id="ap-phone" placeholder="010-0000-0000" inputmode="numeric" autocomplete="tel" onkeydown="if(event.key==='Enter')applicantLogin()">
+          </div>
+          <button class="btn btn-ink btn-block" id="ap-login-btn" onclick="applicantLogin()"><i class="ti ti-login"></i>면접 일정 확인하기</button>
+          <div class="gate-hint">서류전형 합격 안내를 받으신 이름과 휴대폰 번호로 로그인해 주세요.</div>
+        </div>
+
+        <div class="gate-divider">채용 담당자 · 면접관 전용</div>
+        <button class="gate-btn gate-btn-google" id="g-login-btn" onclick="googleLogin()">
+          <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+          회사 Google 계정으로 로그인
+        </button>
+        <div class="gate-hint">권한이 등록된 회사 계정만 접속할 수 있습니다.</div>
+        <button class="gate-link" onclick="toggleGate('ad')">이메일 · 비밀번호로 로그인</button>
+        <div class="gate-form" id="gate-ad">
+          <div class="field-group">
+            <label class="field-label">이메일</label>
+            <input type="email" class="field-input" id="ad-email" placeholder="name@antuan.co.kr" autocomplete="username">
+          </div>
+          <div class="field-group">
+            <label class="field-label">비밀번호</label>
+            <input type="password" class="field-input" id="ad-pw" placeholder="비밀번호" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()">
+          </div>
+          <button class="btn btn-ink btn-block" id="ad-login-btn" onclick="adminLogin()"><i class="ti ti-login"></i>관리자 접속</button>
+          <div class="gate-hint">Firebase 콘솔에서 따로 만든 계정용입니다. 이 경우에도 권한 등록이 필요합니다.</div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 메인 앱 ══ -->
+<div class="app" id="main-app">
+  <div class="app-header">
+    <div class="app-header-left">
+      <div class="app-header-icon"><i class="ti ti-calendar-user"></i></div>
+      <div style="min-width:0;">
+        <div class="app-header-title">면접 스케줄러</div>
+        <div class="app-header-sub" id="hdr-sub"></div>
+      </div>
+    </div>
+    <div class="app-header-right">
+      <div class="db-dot" id="db-dot" title="서버 연결 상태"></div>
+      <span class="role-badge" id="role-badge"></span>
+      <button class="hdr-btn" id="bell-btn" onclick="toggleNotify()" title="알림 설정"><i class="ti ti-bell" id="bell-icon"></i><span class="dotbadge" id="bell-badge"></span></button>
+      <button class="hdr-btn" onclick="logout()" title="로그아웃"><i class="ti ti-logout"></i></button>
+    </div>
+  </div>
+
+  <!-- 지원자 탭 -->
+  <div class="tabs" id="tabs-ap" style="display:none;">
+    <button class="tab active" id="tab-book" onclick="sw('book')"><i class="ti ti-calendar-plus"></i>면접 예약</button>
+    <button class="tab" id="tab-my" onclick="sw('my')"><i class="ti ti-calendar-check"></i>내 예약 확인<span class="tab-badge" id="tb-my"></span></button>
+  </div>
+  <!-- 관리자 탭 -->
+  <div class="tabs" id="tabs-ad" style="display:none;">
+    <button class="tab active" id="tab-admin" onclick="sw('admin')"><i class="ti ti-layout-dashboard"></i>스케줄 관리<span class="tab-badge" id="tb-admin"></span></button>
+    <button class="tab" id="tab-cand" onclick="sw('cand')"><i class="ti ti-users"></i>면접 예정자</button>
+    <button class="tab" id="tab-log" onclick="sw('log')"><i class="ti ti-history"></i>변경 이력</button>
+    <button class="tab" id="tab-perm" onclick="sw('perm')"><i class="ti ti-user-shield"></i>권한 관리</button>
+  </div>
+
+  <!-- ══ 지원자: 면접 예약 ══ -->
+  <div id="panel-book" class="panel">
+    <div id="book-already" style="display:none;"></div>
+    <div id="book-flow">
+      <div class="notice">
+        <i class="ti ti-info-circle"></i>
+        <div class="notice-text">
+          <strong>면접 예약 안내</strong>
+          희망하는 날짜와 시간을 선택해 신청해 주세요. 신청 후 <b>담당자 승인이 완료되면 면접 일정이 최종 확정</b>됩니다. 예약 신청 이후의 일정 변경 및 취소는 담당자를 통해서만 가능합니다.
+        </div>
+      </div>
+
+      <!-- Step 1 -->
+      <div id="step1">
+        <div class="cal-nav">
+          <button class="icon-btn" id="cal-prev" onclick="prevM()"><i class="ti ti-chevron-left"></i></button>
+          <div class="cal-title" id="cal-title"></div>
+          <button class="icon-btn" onclick="nextM()"><i class="ti ti-chevron-right"></i></button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="legend">
+          <div class="leg"><div class="leg-dot" style="background:var(--c-avail-bg);border:1px solid var(--c-avail-bd);"></div>여유</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--c-crowd-bg);border:1px solid var(--c-crowd-bd);"></div>혼잡</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--c-full-bg);border:1px solid var(--c-full-bd);"></div>마감</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--c-block-bg);border:1px solid var(--c-block-bd);"></div>예약불가</div>
+          <div class="leg"><span class="leg-red">빨간 날짜</span>주말·공휴일</div>
+        </div>
+        <div class="card-soft">
+          <div class="info-title"><i class="ti ti-clock"></i>면접 가능 시간 안내</div>
+          <ul class="info-list">
+            <li>평일 10:00 ~ 18:00 (12:00 ~ 13:00 점심시간 제외)</li>
+            <li>면접 시간은 1시간 단위로 운영됩니다.</li>
+            <li>주말 및 공휴일은 면접이 진행되지 않습니다.</li>
+            <li id="lead-info"></li>
+            <li>1인 1회만 예약 신청할 수 있습니다.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="step2" style="display:none;">
+        <div class="step-header">
+          <button class="icon-btn" onclick="goStep(1)"><i class="ti ti-arrow-left"></i></button>
+          <div>
+            <div class="step-title" id="sel-date-lbl"></div>
+            <div class="step-sub">희망하는 면접 시간을 선택해 주세요</div>
+          </div>
+        </div>
+        <div class="slots-grid" id="slots-grid"></div>
+        <div class="slot-note">12:00 ~ 13:00은 점심시간으로 예약이 불가합니다.</div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="step3" style="display:none;">
+        <div class="step-header">
+          <button class="icon-btn" onclick="goStep(2)"><i class="ti ti-arrow-left"></i></button>
+          <div>
+            <div class="step-title">예약 내용 확인</div>
+            <div class="step-sub">신청 전 내용을 확인해 주세요</div>
+          </div>
+        </div>
+        <div class="card" id="confirm-summary" style="margin-bottom:14px;"></div>
+        <div class="field-group" style="margin-bottom:6px;">
+          <label class="field-label">담당자 전달 사항 (선택)</label>
+          <textarea class="field-input" id="f-note" maxlength="200" placeholder="예) 오후 일정을 선호합니다."></textarea>
+        </div>
+        <div class="agree-box">
+          예약 신청 후 <strong>담당자 승인이 완료되어야 면접 일정이 최종 확정</strong>됩니다. 확정 여부는 '내 예약 확인' 탭에서 확인하실 수 있으며, 신청 이후의 일정 변경 및 취소는 담당자를 통해서만 가능합니다.
+        </div>
+        <label class="check-row" style="margin-bottom:16px;">
+          <input type="checkbox" id="agree-cb" onchange="$('submit-btn').disabled=!this.checked">
+          <span>위 안내 사항을 확인했으며 이에 동의합니다.</span>
+        </label>
+        <button class="btn btn-ink btn-block" id="submit-btn" disabled onclick="submitBooking()"><i class="ti ti-send"></i>면접 예약 신청</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 지원자: 내 예약 확인 ══ -->
+  <div id="panel-my" class="panel">
+    <div id="my-body"></div>
+    <div class="card-soft" style="margin-top:20px;">
+      <div class="info-title"><i class="ti ti-info-circle"></i>안내 사항</div>
+      <ul class="info-list">
+        <li>예약 신청 후 담당자 승인이 완료되면 면접 일정이 최종 확정됩니다.</li>
+        <li>일정 변경 및 취소는 지원자가 직접 할 수 없으며, 담당자를 통해서만 가능합니다.</li>
+        <li>면접 장소 및 준비 사항은 일정 확정 후 담당자가 별도로 안내드립니다.</li>
+        <li id="contact-info"></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══ 관리자: 스케줄 관리 ══ -->
+  <div id="panel-admin" class="panel">
+    <div class="stats" id="admin-stats"></div>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title"><i class="ti ti-hourglass-high"></i>승인 대기 요청</div>
+        <div class="section-sub">승인 시 지원자에게 '면접 확정'으로 표시됩니다</div>
+      </div>
+      <div id="pending-list"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title"><i class="ti ti-table"></i>면접 스케줄표</div>
+        <div class="btn-row">
+          <button class="btn btn-ink btn-sm" onclick="openSchedModal('add')"><i class="ti ti-plus"></i>일정 추가</button>
+          <button class="btn btn-line btn-sm" onclick="exportCSV()"><i class="ti ti-file-spreadsheet"></i>Export</button>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;margin-bottom:10px;">
+        <div class="sched-nav">
+          <button class="icon-btn" onclick="schedMove(-1)"><i class="ti ti-chevron-left"></i></button>
+          <div class="sched-range" id="sched-range"></div>
+          <button class="icon-btn" onclick="schedMove(1)"><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="sched-wrap"><table class="sched-tbl" id="sched-tbl"></table></div>
+      <div class="sched-legend">
+        <span><b style="background:var(--pink-200);"></b>승인 대기</span>
+        <span><b style="background:var(--ink);"></b>면접 확정</span>
+        <span><b style="background:var(--white);border:1px solid var(--line);"></b>빈 시간 (클릭 시 추가)</span>
+        <span><b style="background:var(--c-block-bg);"></b>잠금</span>
+      </div>
+    </div>
+
+    <div class="section card-soft">
+      <div class="section-head" style="margin-bottom:6px;">
+        <div class="section-title"><i class="ti ti-lock"></i>예약 가능 기간 설정 (잠금 · 해제)</div>
+      </div>
+      <div class="section-sub" style="line-height:1.6;">날짜를 누르면 예약창이 잠기거나 해제됩니다. 잠긴 날짜는 면접 예정자가 예약할 수 없습니다.</div>
+      <div class="cal-nav" style="margin:12px 0 0;">
+        <button class="icon-btn" onclick="blkMove(-1)"><i class="ti ti-chevron-left"></i></button>
+        <div class="cal-title" id="blk-title" style="font-size:15px;"></div>
+        <button class="icon-btn" onclick="blkMove(1)"><i class="ti ti-chevron-right"></i></button>
+      </div>
+      <div class="mini-cal" id="mini-cal"></div>
+      <div class="sched-legend" style="margin-top:4px;">
+        <span><b style="background:var(--white);border:1px solid var(--c-avail-bd);"></b>예약 가능</span>
+        <span><b style="background:var(--c-block-bg);border:1px solid var(--c-block-bd);"></b>잠금 (예약불가)</span>
+        <span style="color:var(--holiday);">빨간 날짜 = 주말·공휴일</span>
+      </div>
+    </div>
+
+    <div class="section card" style="border-color:var(--pink-200);">
+      <div class="info-title"><i class="ti ti-send"></i>면접 확정 안내 발송</div>
+      <div class="section-sub" style="line-height:1.7;margin-bottom:12px;">예약자 상세 화면의 '안내 문구 복사' 버튼으로 확정 안내 문자를 바로 복사할 수 있습니다. 대량 발송이 필요하면 Export 후 아래 서비스를 이용해 주세요.</div>
+      <div class="btn-row">
+        <button class="btn btn-line btn-sm" onclick="window.open('https://business.kakao.com/','_blank')"><i class="ti ti-message-circle"></i>카카오 비즈니스 (알림톡)</button>
+        <button class="btn btn-line btn-sm" onclick="window.open('https://solapi.com/','_blank')"><i class="ti ti-device-mobile-message"></i>솔라피 (SMS · LMS)</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="section-title"><i class="ti ti-list-details"></i>전체 면접 일정</div>
+      </div>
+      <div id="booking-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ 관리자: 면접 예정자 ══ -->
+  <div id="panel-cand" class="panel">
+    <div class="notice">
+      <i class="ti ti-user-plus"></i>
+      <div class="notice-text">
+        <strong>면접 예정자 등록</strong>
+        서류전형 합격자의 이름과 휴대폰 번호를 등록해야 해당 지원자가 로그인할 수 있습니다. 등록되지 않은 사람은 링크를 알더라도 접속할 수 없습니다.
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="search-box"><i class="ti ti-search"></i><input type="text" class="field-input" id="cand-search" placeholder="이름 · 직무 · 연락처 검색" oninput="renderCandidates()"></div>
+      <button class="btn btn-ink" onclick="openRegModal()"><i class="ti ti-user-plus"></i>예정자 등록</button>
+    </div>
+    <div class="filter-row" id="filter-row"></div>
+    <div id="cand-list"></div>
+  </div>
+
+  <!-- ══ 관리자: 권한 관리 ══ -->
+  <div id="panel-perm" class="panel">
+    <div class="notice">
+      <i class="ti ti-user-shield"></i>
+      <div class="notice-text">
+        <strong>관리자 · 면접관 권한</strong>
+        아래에 등록된 회사 계정만 Google 로그인으로 관리자 화면에 접속할 수 있습니다. 비밀번호는 각자의 회사 Google 계정을 그대로 사용하므로 따로 만들 필요가 없습니다.
+      </div>
+    </div>
+    <div class="card-soft" id="perm-form" style="margin-bottom:20px;">
+      <div class="info-title"><i class="ti ti-user-plus"></i>권한 추가</div>
+      <div class="field-row">
+        <div class="field-group"><label class="field-label">회사 이메일 <span class="req">*</span></label><input type="email" class="field-input" id="pm-email" placeholder="name@antuan.co.kr"></div>
+        <div class="field-group"><label class="field-label">이름 · 직책 <span class="req">*</span></label><input type="text" class="field-input" id="pm-name" placeholder="예) 개발 파트장 김OO" onkeydown="if(event.key==='Enter')addAdmin()"></div>
+      </div>
+      <button class="btn btn-ink btn-block" onclick="addAdmin()"><i class="ti ti-plus"></i>권한 추가</button>
+    </div>
+    <div id="perm-readonly" class="card-soft" style="display:none;font-size:13px;color:var(--ink-2);margin-bottom:16px;padding:12px 14px;">권한 추가 · 삭제는 최고 관리자만 할 수 있습니다.</div>
+    <div class="section-title" style="margin-bottom:12px;"><i class="ti ti-users-group"></i>접속 가능 계정</div>
+    <div id="perm-list"></div>
+  </div>
+
+  <!-- ══ 관리자: 변경 이력 ══ -->
+  <div id="panel-log" class="panel">
+    <div class="section-head">
+      <div class="section-title"><i class="ti ti-history"></i>변경 이력 로그</div>
+      <button class="btn btn-line btn-sm" onclick="exportLogsCSV()"><i class="ti ti-file-spreadsheet"></i>로그 Export</button>
+    </div>
+    <div class="card-soft" style="font-size:12px;color:var(--ink-2);line-height:1.7;margin-bottom:14px;padding:12px 14px;">
+      예약 신청 · 승인 · 변경 · 취소, 예정자 등록 · 수정 · 삭제, 예약창 잠금, 권한 변경 내역이 처리자 이름과 함께 시간 순서대로 자동 기록됩니다.
+    </div>
+    <div id="log-list"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ 모달: 신청 완료 팝업 ══ -->
+<div class="modal-overlay" id="done-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="done-wrap">
+      <div class="done-icon"><i class="ti ti-circle-check"></i></div>
+      <div class="done-title">면접 예약 신청 완료</div>
+      <div class="done-sub" id="done-sub"></div>
+      <div class="tracker">
+        <div class="trk-step done"><div class="trk-dot"><i class="ti ti-check"></i></div><div class="trk-label">예약 신청</div></div>
+        <div class="trk-step active"><div class="trk-dot"><i class="ti ti-hourglass-high"></i></div><div class="trk-label">승인 대기</div></div>
+        <div class="trk-step"><div class="trk-dot"><i class="ti ti-calendar-check"></i></div><div class="trk-label">면접 확정</div></div>
+      </div>
+      <button class="btn btn-ink btn-block" onclick="closeModal('done-modal');sw('my');"><i class="ti ti-calendar-check"></i>내 예약 확인하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 모달: 예정자 상세 ══ -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i class="ti ti-id-badge-2"></i><span id="detail-title">면접 예정자 정보</span></div>
+    <div id="detail-body"></div>
+  </div>
+</div>
+
+<!-- ══ 모달: 예정자 등록/수정 ══ -->
+<div class="modal-overlay" id="reg-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i class="ti ti-user-plus"></i><span id="reg-title">면접 예정자 등록</span></div>
+    <div class="field-row">
+      <div class="field-group"><label class="field-label">이름 <span class="req">*</span></label><input type="text" class="field-input" id="rg-name" placeholder="홍길동"></div>
+      <div class="field-group"><label class="field-label">휴대폰 번호 <span class="req">*</span></label><input type="tel" class="field-input" id="rg-phone" placeholder="010-0000-0000" inputmode="numeric"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label class="field-label">지원 직무 <span class="req">*</span></label><input type="text" class="field-input" id="rg-position" placeholder="예) 백엔드 개발자"></div>
+      <div class="field-group"><label class="field-label">담당 면접관</label><input type="text" class="field-input" id="rg-interviewer" placeholder="예) 개발 파트장"></div>
+    </div>
+    <div class="field-row one">
+      <div class="field-group"><label class="field-label">메모 (내부용)</label><textarea class="field-input" id="rg-memo" placeholder="면접관 참고 사항 (지원자에게 노출되지 않음)"></textarea></div>
+    </div>
+
+    <div class="sub-title"><i class="ti ti-file-cv"></i>이력서 (PDF 1개)</div>
+    <div id="rg-resume-box"></div>
+    <div class="sub-title"><i class="ti ti-folder"></i>포트폴리오 (PDF 여러 개 가능)</div>
+    <div id="rg-pf-box"></div>
+    <div class="field-help">PDF 파일당 최대 <span class="max-mb"></span>MB까지 업로드할 수 있습니다. 용량이 큰 포트폴리오는 구글 드라이브 링크로 아래에 첨부해 주세요.</div>
+
+    <div class="sub-title"><i class="ti ti-link"></i>레퍼런스 링크 (GitHub · 웹페이지 · 드라이브 등)</div>
+    <div id="rg-links"></div>
+    <button class="btn btn-line btn-sm" onclick="addLinkRow()"><i class="ti ti-plus"></i>링크 추가</button>
+
+    <div class="modal-btns">
+      <button class="btn btn-line" onclick="closeModal('reg-modal')">취소</button>
+      <button class="btn btn-ink" id="rg-save-btn" onclick="saveCandidate()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 모달: 일정 추가/변경 ══ -->
+<div class="modal-overlay" id="sched-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i class="ti ti-calendar-event"></i><span id="sc-title">면접 일정 추가</span></div>
+    <div class="field-row one" id="sc-cand-row">
+      <div class="field-group"><label class="field-label">면접 예정자</label><select class="field-input" id="sc-cand"></select>
+      <div class="field-help">예약 내역이 없는 등록 예정자만 표시됩니다.</div></div>
+    </div>
+    <div class="field-row one" id="sc-who-row" style="display:none;">
+      <div class="card-soft" id="sc-who" style="padding:12px 14px;font-size:13px;"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label class="field-label">면접 날짜</label><select class="field-input" id="sc-date" onchange="fillTimeOptions()"></select></div>
+      <div class="field-group"><label class="field-label">면접 시간</label><select class="field-input" id="sc-time"></select></div>
+    </div>
+    <div class="field-row one" id="sc-status-row">
+      <div class="field-group"><label class="field-label">상태</label>
+        <select class="field-input" id="sc-status"><option value="confirmed">면접 확정 (바로 확정)</option><option value="pending">승인 대기</option></select>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-line" onclick="closeModal('sched-modal')">취소</button>
+      <button class="btn btn-ink" id="sc-save-btn" onclick="saveSched()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 모달: 확인 (공용) ══ -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i class="ti ti-alert-triangle" id="cf-icon"></i><span id="cf-title"></span></div>
+    <p id="cf-msg" style="font-size:14px;color:var(--ink-2);line-height:1.75;padding:4px 0 6px;"></p>
+    <div class="modal-btns">
+      <button class="btn btn-line" onclick="closeModal('confirm-modal')">돌아가기</button>
+      <button class="btn btn-danger" id="cf-ok"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 모달: 관리자 이름 설정 ══ -->
+<div class="modal-overlay" id="name-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title"><i class="ti ti-user-edit"></i>표시 이름 설정</div>
+    <p style="font-size:13px;color:var(--ink-2);line-height:1.7;margin-bottom:12px;">변경 이력에 기록될 이름을 입력해 주세요. (예: 황영지 / 개발 파트장 김OO)</p>
+    <input type="text" class="field-input" id="nm-input" maxlength="20" placeholder="이름" onkeydown="if(event.key==='Enter')saveAdminName()">
+    <div class="modal-btns">
+      <button class="btn btn-line" onclick="closeModal('name-modal')">나중에</button>
+      <button class="btn btn-ink" onclick="saveAdminName()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+// ════════════════════════════════════════════════
+// ★ 기본 설정 (필요 시 이 부분만 수정하세요) ★
+// ════════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAhGKpkUaCq9EOBIu9tw0uyb3rqczj-5-M",
+  authDomain: "antuan-interview.firebaseapp.com",
+  databaseURL: "https://antuan-interview-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "antuan-interview",
+  storageBucket: "antuan-interview.firebasestorage.app",
+  messagingSenderId: "421785681521",
+  appId: "1:421785681521:web:da178bb709c45f83e525d0"
+};
+// 최고 관리자(권한 관리 가능). 보안 규칙 파일의 이메일과 반드시 같아야 합니다.
+const OWNER_EMAILS = ['blair.h@antuan.co.kr'];
+const COMPANY_DOMAIN = 'antuan.co.kr';   // Google 로그인 시 회사 계정 우선 표시
+const ROOT = 'interview';                 // 데이터 저장 위치 (크리에이터 예약 데이터와 분리)
+const SLOT_TIMES = ['1000','1100','1300','1400','1500','1600','1700']; // 10~18시, 12~13시 점심 제외, 1시간 단위
+const MIN_LEAD_DAYS = 1;                  // 면접일 기준 최소 N일 전까지 신청 가능 (1 = 내일 일정부터)
+const MAX_FILE_MB = 5;                    // PDF 1개당 최대 용량
+const HR_CONTACT = '안투안 채용 담당자';     // 지원자 화면 문의처 문구
+const HASH_SALT = 'antuan-interview-2026';   // 변경 금지 (변경 시 기존 예정자 로그인 불가)
+const CONFIRM_MSG = (n, pos, d, t) =>
+  `[안투안] ${n}님, 안녕하세요.\n${pos} 직무 면접 일정이 ${d} ${t}로 확정되었습니다.\n면접 장소 및 준비 사항은 별도로 안내드리겠습니다. 감사합니다.`;
+
+// 공휴일 (인사혁신처·우주항공청 월력요항 기준, 2026년부터 노동절·제헌절 포함)
+// 임시공휴일 등은 관리자 화면의 '잠금' 기능으로 추가로 막을 수 있습니다.
+const HOLIDAYS = {
+  '2026-01-01':'신정','2026-02-16':'설날','2026-02-17':'설날','2026-02-18':'설날',
+  '2026-03-01':'삼일절','2026-03-02':'대체휴일','2026-05-01':'노동절','2026-05-05':'어린이날',
+  '2026-05-24':'부처님오신날','2026-05-25':'대체휴일','2026-06-03':'지방선거','2026-06-06':'현충일',
+  '2026-07-17':'제헌절','2026-08-15':'광복절','2026-08-17':'대체휴일',
+  '2026-09-24':'추석','2026-09-25':'추석','2026-09-26':'추석',
+  '2026-10-03':'개천절','2026-10-05':'대체휴일','2026-10-09':'한글날','2026-12-25':'성탄절',
+  '2027-01-01':'신정','2027-02-06':'설날','2027-02-07':'설날','2027-02-08':'설날','2027-02-09':'대체휴일',
+  '2027-03-01':'삼일절','2027-05-01':'노동절','2027-05-03':'대체휴일','2027-05-05':'어린이날',
+  '2027-05-13':'부처님오신날','2027-06-06':'현충일','2027-07-17':'제헌절','2027-07-19':'대체휴일',
+  '2027-08-15':'광복절','2027-08-16':'대체휴일','2027-09-14':'추석','2027-09-15':'추석','2027-09-16':'추석',
+  '2027-10-03':'개천절','2027-10-04':'대체휴일','2027-10-09':'한글날','2027-10-11':'대체휴일',
+  '2027-12-25':'성탄절','2027-12-27':'대체휴일'
+};
+
+// ════════════════════════════════════════════════
+// 상태
+// ════════════════════════════════════════════════
+let FB = null;
+let mode = null;            // 'admin' | 'applicant'
+let adminUser = null;
+let applicant = null;       // { h, cid, name, position, booking }
+let applicantUnsub = null;
+let adminUnsubs = [];
+let adminLoaded = { c:false, a:false };
+let candidates = {}, access = {}, slots = {}, blocked = {}, logs = [];
+let knownPending = null;
+const now0 = new Date();
+let calY = now0.getFullYear(), calM = now0.getMonth();
+let blkY = now0.getFullYear(), blkM = now0.getMonth();
+let schedOffset = 0;
+let selDate = null, selTime = null;
+let candFilter = 'all';
+let regState = null;        // 등록/수정 모달 상태
+let schedState = null;      // 일정 모달 상태
+let cfCallback = null;
+let renderQueued = false;
+let submitting = false;
+const fileCache = {};
+
+// ════════════════════════════════════════════════
+// 유틸
+// ════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+window.$ = $;
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const DOW = ['일','월','화','수','목','금','토'];
+const dk = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
+const keyToDate = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+const dateToKey = d => dk(d.getFullYear(), d.getMonth(), d.getDate());
+const todayKey = () => dateToKey(new Date());
+const addDaysKey = (k, n) => { const d = keyToDate(k); d.setDate(d.getDate() + n); return dateToKey(d); };
+const daysUntil = k => Math.round((keyToDate(k) - keyToDate(todayKey())) / 86400000);
+const dowOf = k => keyToDate(k).getDay();
+const isWeekend = k => { const w = dowOf(k); return w === 0 || w === 6; };
+const isBusinessDay = k => !isWeekend(k) && !HOLIDAYS[k];
+const fmtDate = k => { const d = keyToDate(k); return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 (${DOW[d.getDay()]})`; };
+const fmtShort = k => { const d = keyToDate(k); return `${d.getMonth() + 1}/${d.getDate()}(${DOW[d.getDay()]})`; };
+const fmtTime = t => t ? `${t.slice(0, 2)}:${t.slice(2)}` : '';
+const normPhone = p => String(p || '').replace(/\D/g, '');
+const normName = n => String(n || '').replace(/\s+/g, '').toLowerCase();
+const fmtPhone = p => { const s = normPhone(p); if (s.length === 11) return s.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3'); if (s.length === 10) return s.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3'); return s; };
+const fmtSize = b => b >= 1048576 ? (b / 1048576).toFixed(1) + 'MB' : Math.max(1, Math.round(b / 1024)) + 'KB';
+function fmtTs(ts) {
+  const d = new Date(ts);
+  return `${String(d.getFullYear()).slice(2)}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+async function sha256(s) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+const makeHash = (name, phone) => sha256(`${HASH_SALT}|${normPhone(phone)}|${normName(name)}`);
+const R = p => FB.ref(FB.db, p ? `${ROOT}/${p}` : ROOT);
+const newKey = p => FB.push(R(p)).key;
+const isPermErr = e => /permission|PERMISSION/i.test(String(e && (e.code || e.message || e)));
+
+// ════════════════════════════════════════════════
+// Firebase 초기화
+// ════════════════════════════════════════════════
+async function initFirebase() {
+  try {
+    const appMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const dbMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
+    const authMod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+    const app = appMod.initializeApp(FIREBASE_CONFIG);
+    FB = { ...dbMod, ...authMod, db: dbMod.getDatabase(app), auth: authMod.getAuth(app) };
+    return true;
+  } catch (e) {
+    console.error('[Firebase] 초기화 실패', e);
+    return false;
+  }
+}
+
+function attachPublic() {
+  FB.onValue(FB.ref(FB.db, '.info/connected'), s => {
+    $('db-dot').className = 'db-dot ' + (s.val() ? 'on' : 'off');
+    $('db-dot').title = s.val() ? '실시간 연결됨' : '연결 끊김 (자동 재연결 중)';
+  });
+  FB.onValue(R('slots'), s => { slots = s.val() || {}; queueRender(); }, e => console.warn(e));
+  FB.onValue(R('blocked'), s => { blocked = s.val() || {}; queueRender(); }, e => console.warn(e));
+}
+
+function queueRender() {
+  if (renderQueued) return;
+  renderQueued = true;
+  requestAnimationFrame(() => {
+    renderQueued = false;
+    if (mode === 'admin') renderAdmin();
+    else if (mode === 'applicant') renderApplicant();
+  });
+}
+
+function hideLoading() { $('loading-overlay').style.display = 'none'; }
+function showGate() {
+  mode = null;
+  $('main-app').style.display = 'none';
+  $('auth-gate').style.display = 'flex';
+  updateBadge(0);
+}
+
+// ════════════════════════════════════════════════
+// 진입 게이트
+// ════════════════════════════════════════════════
+window.toggleGate = function (which) {
+  const ap = $('gate-ap'), ad = $('gate-ad');
+  if (which === 'ap') { ap.classList.toggle('open'); ad.classList.remove('open'); if (ap.classList.contains('open')) setTimeout(() => $('ap-name').focus(), 80); }
+  else { ad.classList.toggle('open'); ap.classList.remove('open'); if (ad.classList.contains('open')) setTimeout(() => $('ad-email').focus(), 80); }
+};
+
+// ── 관리자 로그인 (Firebase 이메일/비밀번호) ──
+window.adminLogin = async function () {
+  const email = $('ad-email').value.trim(), pw = $('ad-pw').value;
+  if (!email || !pw) return showToast('이메일과 비밀번호를 입력해 주세요.');
+  const btn = $('ad-login-btn'); btn.disabled = true;
+  try {
+    await FB.signInWithEmailAndPassword(FB.auth, email, pw);
+    $('ad-pw').value = '';
+  } catch (e) {
+    const c = e.code || '';
+    let msg = '로그인에 실패했습니다.';
+    if (/invalid-credential|wrong-password|user-not-found|invalid-email/.test(c)) msg = '이메일 또는 비밀번호가 올바르지 않습니다.';
+    else if (/too-many-requests/.test(c)) msg = '시도 횟수가 많아 잠시 후 다시 시도해 주세요.';
+    else if (/operation-not-allowed|configuration-not-found/.test(c)) msg = 'Firebase에서 이메일/비밀번호 로그인이 아직 활성화되지 않았습니다.';
+    else if (/network/.test(c)) msg = '네트워크 연결을 확인해 주세요.';
+    showToast(msg);
+  } finally { btn.disabled = false; }
+};
+
+// ── Google 로그인 ──
+window.googleLogin = async function () {
+  const btn = $('g-login-btn'); btn.disabled = true;
+  try {
+    const provider = new FB.GoogleAuthProvider();
+    provider.setCustomParameters({ hd: COMPANY_DOMAIN, prompt: 'select_account' });
+    await FB.signInWithPopup(FB.auth, provider);
+  } catch (e) {
+    const c = e.code || '';
+    if (/popup-closed|cancelled-popup/.test(c)) { /* 사용자가 창을 닫음 */ }
+    else if (/popup-blocked/.test(c)) showToast('팝업이 차단되었습니다. 브라우저에서 팝업을 허용한 뒤 다시 눌러 주세요.');
+    else if (/unauthorized-domain/.test(c)) showToast('이 주소가 Firebase 승인된 도메인에 등록되지 않았습니다. 관리자에게 문의해 주세요.');
+    else if (/operation-not-allowed/.test(c)) showToast('Firebase에서 Google 로그인이 아직 활성화되지 않았습니다.');
+    else if (/network/.test(c)) showToast('네트워크 연결을 확인해 주세요.');
+    else showToast('Google 로그인에 실패했습니다. (' + c + ')');
+  } finally { btn.disabled = false; }
+};
+
+const emailKey = e => String(e || '').toLowerCase().replace(/\./g, ',');
+const isOwner = () => !!(adminUser && adminUser.email && OWNER_EMAILS.includes(adminUser.email.toLowerCase()));
+let myAdminEntry = null;
+let adminList = {};
+
+async function verifyAdmin(user) {
+  const email = (user.email || '').toLowerCase();
+  if (!email) return false;
+  if (OWNER_EMAILS.includes(email)) {
+    try { const s = await FB.get(FB.ref(FB.db, 'adminList/' + emailKey(email))); myAdminEntry = s.val(); } catch (e) { myAdminEntry = null; }
+    return true;
+  }
+  try {
+    const s = await FB.get(FB.ref(FB.db, 'adminList/' + emailKey(email)));
+    if (!s.exists()) return false;
+    myAdminEntry = s.val();
+    return true;
+  } catch (e) { return false; }
+}
+
+const adminName = () => {
+  if (!adminUser) return '관리자';
+  if (myAdminEntry && myAdminEntry.name) return myAdminEntry.name;
+  return adminUser.displayName || (adminUser.email || '관리자').split('@')[0];
+};
+
+function enterAdmin() {
+  mode = 'admin';
+  applicantLogoutSilent();
+  $('auth-gate').style.display = 'none';
+  $('main-app').style.display = 'block';
+  $('tabs-ap').style.display = 'none';
+  $('tabs-ad').style.display = 'flex';
+  $('role-badge').textContent = isOwner() ? '최고 관리자' : '관리자';
+  $('role-badge').style.cursor = 'pointer';
+  $('role-badge').onclick = () => openNameModal();
+  $('hdr-sub').textContent = `${adminName()} 님 접속 중`;
+  attachAdmin();
+  sw('admin');
+  if (!adminUser.displayName && !(myAdminEntry && myAdminEntry.name)) setTimeout(openNameModal, 400);
+}
+
+function attachAdmin() {
+  detachAdmin();
+  adminLoaded = { c: false, a: false };
+  knownPending = null;
+  const onErr = e => { console.warn(e); showToast('데이터 접근 권한이 없습니다. 보안 규칙과 로그인 계정을 확인해 주세요.'); };
+  adminUnsubs.push(FB.onValue(R('candidates'), s => { candidates = s.val() || {}; adminLoaded.c = true; queueRender(); }, onErr));
+  adminUnsubs.push(FB.onValue(R('access'), s => { access = s.val() || {}; adminLoaded.a = true; queueRender(); }, onErr));
+  adminUnsubs.push(FB.onValue(FB.ref(FB.db, 'adminList'), s => { adminList = s.val() || {}; queueRender(); }, e => console.warn(e)));
+  adminUnsubs.push(FB.onValue(R('logs'), s => { logs = Object.values(s.val() || {}); queueRender(); }, onErr));
+}
+function detachAdmin() { adminUnsubs.forEach(u => { try { u(); } catch (e) {} }); adminUnsubs = []; candidates = {}; access = {}; logs = []; adminList = {}; }
+
+window.openNameModal = function () { $('nm-input').value = adminUser ? (adminUser.displayName || '') : ''; openModal('name-modal'); setTimeout(() => $('nm-input').focus(), 100); };
+window.saveAdminName = async function () {
+  const v = $('nm-input').value.trim();
+  if (!v) return showToast('이름을 입력해 주세요.');
+  try {
+    await FB.updateProfile(FB.auth.currentUser, { displayName: v });
+    adminUser = FB.auth.currentUser;
+    if (myAdminEntry) myAdminEntry = { ...myAdminEntry, name: v };
+    if (isOwner() || myAdminEntry) { try { await FB.set(FB.ref(FB.db, 'adminList/' + emailKey(adminUser.email) + '/name'), v); } catch (e) {} }
+    $('hdr-sub').textContent = `${adminName()} 님 접속 중`;
+    closeModal('name-modal');
+    showToast('표시 이름이 저장되었습니다.');
+  } catch (e) { showToast('이름 저장에 실패했습니다.'); }
+};
+
+// ── 면접 예정자 로그인 (이름 + 휴대폰 번호) ──
+window.applicantLogin = async function () {
+  const name = $('ap-name').value.trim(), phone = $('ap-phone').value;
+  if (!name || normPhone(phone).length < 10) return showToast('이름과 휴대폰 번호를 정확히 입력해 주세요.');
+  const btn = $('ap-login-btn'); btn.disabled = true;
+  try {
+    const h = await makeHash(name, phone);
+    const snap = await FB.get(R('access/' + h));
+    if (!snap.exists()) { showToast('등록된 면접 예정자 정보가 없습니다. 이름과 번호를 확인해 주세요.'); return; }
+    try { localStorage.setItem('iv_applicant', JSON.stringify({ h, ts: Date.now() })); } catch (e) {}
+    startApplicant(h, snap.val());
+    $('ap-phone').value = '';
+  } catch (e) {
+    console.error(e);
+    showToast('조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+  } finally { btn.disabled = false; }
+};
+
+async function restoreApplicant() {
+  try {
+    const s = JSON.parse(localStorage.getItem('iv_applicant') || 'null');
+    if (!s || !s.h || Date.now() - s.ts > 7 * 86400000) return false;
+    const snap = await FB.get(R('access/' + s.h));
+    if (!snap.exists()) { localStorage.removeItem('iv_applicant'); return false; }
+    startApplicant(s.h, snap.val());
+    return true;
+  } catch (e) { return false; }
+}
+
+function startApplicant(h, data) {
+  mode = 'applicant';
+  applicant = { h, ...data };
+  $('auth-gate').style.display = 'none';
+  $('main-app').style.display = 'block';
+  $('tabs-ad').style.display = 'none';
+  $('tabs-ap').style.display = 'flex';
+  $('role-badge').textContent = '면접 예정자';
+  $('role-badge').onclick = null;
+  $('role-badge').style.cursor = 'default';
+  $('hdr-sub').textContent = `${data.name} 님 · ${data.position || ''}`;
+  rememberApplicantStatus(data, true);
+  if (applicantUnsub) applicantUnsub();
+  applicantUnsub = FB.onValue(R('access/' + h), s => {
+    if (mode !== 'applicant') return;
+    if (!s.exists()) { showToast('면접 예정자 정보가 확인되지 않아 로그아웃됩니다.'); window.logout(); return; }
+    const v = s.val();
+    rememberApplicantStatus(v, false);
+    applicant = { h, ...v };
+    queueRender();
+  }, e => console.warn(e));
+  goStep(1);
+  sw(data.booking ? 'my' : 'book');
+}
+
+function applicantLogoutSilent() {
+  if (applicantUnsub) { try { applicantUnsub(); } catch (e) {} applicantUnsub = null; }
+  applicant = null;
+}
+
+window.logout = async function () {
+  if (mode === 'admin') {
+    detachAdmin();
+    try { await FB.signOut(FB.auth); } catch (e) {}
+  } else {
+    applicantLogoutSilent();
+    try { localStorage.removeItem('iv_applicant'); } catch (e) {}
+  }
+  closeAllModals();
+  showGate();
+};
+
+// ════════════════════════════════════════════════
+// 탭 전환
+// ════════════════════════════════════════════════
+window.sw = function (tab) {
+  ['book', 'my', 'admin', 'cand', 'log', 'perm'].forEach(p => {
+    const t = $('tab-' + p), pn = $('panel-' + p);
+    if (t) t.classList.toggle('active', p === tab);
+    if (pn) pn.classList.toggle('active', p === tab);
+  });
+  if (tab === 'my') clearApplicantUnseen();
+  window.scrollTo(0, 0);
+  if (mode === 'admin') renderAdmin(); else if (mode === 'applicant') renderApplicant();
+};
+
+// ════════════════════════════════════════════════
+// 지원자 화면
+// ════════════════════════════════════════════════
+const slotTaken = (d, t) => !!(slots[d] && slots[d][t]);
+const takenCount = d => SLOT_TIMES.filter(t => slotTaken(d, t)).length;
+const applicantBookable = d => isBusinessDay(d) && !blocked[d] && daysUntil(d) >= MIN_LEAD_DAYS;
+
+function renderApplicant() {
+  if (!applicant) return;
+  $('lead-info').textContent = MIN_LEAD_DAYS <= 1 ? '당일 예약은 불가하며, 내일 일정부터 신청할 수 있습니다.' : `면접일 기준 ${MIN_LEAD_DAYS}일 전까지 신청할 수 있습니다.`;
+  $('contact-info').textContent = `문의: ${HR_CONTACT}`;
+  const b = applicant.booking;
+  if (b) {
+    $('book-flow').style.display = 'none';
+    $('book-already').style.display = 'block';
+    $('book-already').innerHTML = `
+      <div class="card" style="text-align:center;padding:28px 18px;">
+        <div class="done-icon" style="width:56px;height:56px;font-size:28px;"><i class="ti ti-calendar-check"></i></div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px;">이미 신청한 면접 일정이 있습니다</div>
+        <div style="font-size:13px;color:var(--ink-2);line-height:1.7;margin-bottom:16px;">${esc(fmtDate(b.date))} ${esc(fmtTime(b.time))}<br>${b.status === 'confirmed' ? '면접 일정이 확정되었습니다.' : '담당자 승인을 기다리고 있습니다.'}</div>
+        <button class="btn btn-ink" onclick="sw('my')"><i class="ti ti-calendar-check"></i>내 예약 확인하기</button>
+      </div>`;
+  } else {
+    $('book-flow').style.display = 'block';
+    $('book-already').style.display = 'none';
+    buildCal();
+    if (selDate && $('step2').style.display !== 'none') buildSlots();
+  }
+  renderMy();
+}
+
+function buildCal() {
+  $('cal-title').textContent = `${calY}년 ${calM + 1}월`;
+  const nowD = new Date();
+  $('cal-prev').disabled = (calY < nowD.getFullYear()) || (calY === nowD.getFullYear() && calM <= nowD.getMonth());
+  const g = $('cal-grid');
+  let html = DOW.map((d, i) => `<div class="cal-dow${i === 0 ? ' sun' : i === 6 ? ' sat' : ''}">${d}</div>`).join('');
+  const first = new Date(calY, calM, 1).getDay();
+  const days = new Date(calY, calM + 1, 0).getDate();
+  const tk = todayKey();
+  for (let i = 0; i < first; i++) html += '<div class="cal-day empty"></div>';
+  for (let d = 1; d <= days; d++) {
+    const k = dk(calY, calM, d);
+    const isToday = k === tk ? ' today' : '';
+    const hol = HOLIDAYS[k];
+    if (isWeekend(k) || hol) {
+      html += `<div class="cal-day off${isToday}"><div class="dn">${d}</div>${hol ? `<div class="hn">${esc(hol)}</div>` : ''}</div>`;
+      continue;
+    }
+    if (k < tk) { html += `<div class="cal-day dis"><div class="dn">${d}</div></div>`; continue; }
+    if (blocked[k]) { html += `<div class="cal-day blocked${isToday}"><div class="dn">${d}</div><div class="dc">예약불가</div></div>`; continue; }
+    if (daysUntil(k) < MIN_LEAD_DAYS) { html += `<div class="cal-day dis${isToday}"><div class="dn">${d}</div><div class="dc">신청마감</div></div>`; continue; }
+    const remaining = SLOT_TIMES.length - takenCount(k);
+    let cls = remaining >= 3 ? 'avail' : remaining >= 1 ? 'crowd' : 'full';
+    if (selDate === k) cls += ' selected';
+    const badge = remaining === 0 ? '마감' : `${remaining}/${SLOT_TIMES.length}`;
+    html += remaining > 0
+      ? `<div class="cal-day ${cls}${isToday}" onclick="selectDate('${k}')"><div class="dn">${d}</div><div class="dc">${badge}</div></div>`
+      : `<div class="cal-day ${cls}${isToday}"><div class="dn">${d}</div><div class="dc">${badge}</div></div>`;
+  }
+  g.innerHTML = html;
+}
+window.prevM = () => { calM--; if (calM < 0) { calM = 11; calY--; } buildCal(); };
+window.nextM = () => { calM++; if (calM > 11) { calM = 0; calY++; } buildCal(); };
+
+window.selectDate = function (k) {
+  if (!applicantBookable(k)) return;
+  selDate = k; selTime = null;
+  buildCal();
+  $('sel-date-lbl').textContent = fmtDate(k);
+  buildSlots();
+  goStep(2);
+};
+
+function buildSlots() {
+  if (!selDate) return;
+  $('slots-grid').innerHTML = SLOT_TIMES.map(t => {
+    const taken = slotTaken(selDate, t);
+    const cls = taken ? 's-taken' : (selTime === t ? 's-sel' : 's-open');
+    return `<button class="slot-btn ${cls}" ${taken ? 'disabled' : `onclick="selectSlot('${t}')"`}>
+      <span class="slot-time">${fmtTime(t)}</span><span class="slot-status">${taken ? '예약마감' : '예약가능'}</span></button>`;
+  }).join('');
+}
+
+window.selectSlot = function (t) {
+  selTime = t;
+  buildSlots();
+  $('confirm-summary').innerHTML = `
+    <div class="kv"><span class="k">이름</span><span class="v">${esc(applicant.name)}</span></div>
+    <div class="kv"><span class="k">지원 직무</span><span class="v">${esc(applicant.position || '-')}</span></div>
+    <div class="kv"><span class="k">면접 일자</span><span class="v">${esc(fmtDate(selDate))}</span></div>
+    <div class="kv"><span class="k">면접 시간</span><span class="v">${fmtTime(t)} ~ ${fmtTime(pad(Number(t.slice(0, 2)) + 1) + '00')}</span></div>`;
+  $('agree-cb').checked = false;
+  $('submit-btn').disabled = true;
+  setTimeout(() => goStep(3), 120);
+};
+
+window.goStep = function (n) {
+  [1, 2, 3].forEach(i => { $('step' + i).style.display = i === n ? '' : 'none'; });
+  if (n === 1) buildCal();
+  window.scrollTo(0, 0);
+};
+
+window.submitBooking = async function () {
+  if (!$('agree-cb').checked) return showToast('안내 사항에 동의해 주세요.');
+  if (applicant.booking) { showToast('이미 신청한 면접 일정이 있습니다.'); return sw('my'); }
+  if (!selDate || !selTime) return showToast('날짜와 시간을 선택해 주세요.');
+  if (!applicantBookable(selDate)) { showToast('선택한 날짜는 예약할 수 없습니다. 다른 날짜를 선택해 주세요.'); return goStep(1); }
+  if (slotTaken(selDate, selTime)) { showToast('방금 다른 지원자가 선택한 시간입니다. 다른 시간을 선택해 주세요.'); buildSlots(); return goStep(2); }
+
+  const btn = $('submit-btn'); btn.disabled = true;
+  submitting = true;
+  const ts = Date.now();
+  const note = $('f-note').value.trim().slice(0, 200);
+  const u = {};
+  u[`slots/${selDate}/${selTime}`] = 'pending';
+  u[`slotOwners/${selDate}/${selTime}`] = applicant.h;
+  u[`access/${applicant.h}/booking`] = { date: selDate, time: selTime, status: 'pending', bookedAt: ts, note };
+  u[`logs/${newKey('logs')}`] = { ts, actor: '지원자', action: 'create', message: `${applicant.name}(${applicant.position || '-'}) 지원자가 ${fmtShort(selDate)} ${fmtTime(selTime)} 면접을 신청했습니다.` };
+  try {
+    await FB.update(R(''), u);
+  } catch (e) {
+    console.error(e);
+    submitting = false;
+    rememberApplicantStatus(applicant, true);
+    btn.disabled = false;
+    if (isPermErr(e)) { showToast('방금 다른 지원자가 선택한 시간이거나 예약할 수 없는 일정입니다.'); goStep(2); }
+    else showToast('신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    return;
+  }
+  submitting = false;
+  rememberApplicantStatus({ booking: { status: 'pending', date: selDate, time: selTime } }, true);
+  $('done-sub').innerHTML = `${esc(fmtDate(selDate))} ${fmtTime(selTime)}<br>면접 예약 신청이 접수되었습니다.<br><strong>담당자 승인 후 최종 면접 일정이 확정됩니다.</strong>`;
+  $('f-note').value = '';
+  selDate = null; selTime = null;
+  goStep(1);
+  openModal('done-modal');
+};
+
+function renderMy() {
+  const b = applicant.booking;
+  const body = $('my-body');
+  if (!b) {
+    body.innerHTML = `<div class="card"><div class="empty"><i class="ti ti-calendar-x"></i>아직 신청한 면접 일정이 없습니다.<br><span style="font-size:12px;">'면접 예약' 탭에서 희망 일정을 신청해 주세요.</span></div>
+      <button class="btn btn-ink btn-block" onclick="sw('book')"><i class="ti ti-calendar-plus"></i>면접 예약하러 가기</button></div>`;
+    return;
+  }
+  const conf = b.status === 'confirmed';
+  body.innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <div class="section-title" style="margin:0;"><i class="ti ti-calendar-check"></i>나의 면접 일정</div>
+        <span class="chip ${conf ? 'chip-conf' : 'chip-pend'}">${conf ? '면접 확정' : '승인 대기'}</span>
+      </div>
+      <div class="tracker">
+        <div class="trk-step done"><div class="trk-dot"><i class="ti ti-check"></i></div><div class="trk-label">예약 신청</div></div>
+        <div class="trk-step ${conf ? 'done' : 'active'}"><div class="trk-dot"><i class="ti ${conf ? 'ti-check' : 'ti-hourglass-high'}"></i></div><div class="trk-label">승인 대기</div></div>
+        <div class="trk-step ${conf ? 'done' : ''}"><div class="trk-dot"><i class="ti ti-calendar-check"></i></div><div class="trk-label">면접 확정</div></div>
+      </div>
+      <div class="kv"><span class="k">이름</span><span class="v">${esc(applicant.name)}</span></div>
+      <div class="kv"><span class="k">지원 직무</span><span class="v">${esc(applicant.position || '-')}</span></div>
+      <div class="kv"><span class="k">면접 일자</span><span class="v">${esc(fmtDate(b.date))}</span></div>
+      <div class="kv"><span class="k">면접 시간</span><span class="v">${fmtTime(b.time)}</span></div>
+      <div class="kv"><span class="k">신청 일시</span><span class="v">${b.bookedAt ? esc(fmtTs(b.bookedAt)) : '-'}</span></div>
+      <div class="agree-box" style="margin-bottom:0;">${conf
+        ? '<strong>면접 일정이 확정되었습니다.</strong> 면접 장소 및 준비 사항은 담당자가 별도로 안내드립니다.'
+        : '담당자가 신청하신 일정을 확인하고 있습니다. <strong>승인이 완료되면 면접 일정이 최종 확정</strong>되며, 이 화면에서 바로 확인하실 수 있습니다.'}</div>
+      <div style="font-size:12px;color:var(--ink-3);text-align:center;margin-top:12px;">일정 변경 · 취소는 담당자에게 문의해 주세요.</div>
+    </div>`;
+}
+
+// ── 지원자 상태 변화 감지 → 알림/배지 ──
+function statusSig(v) { const b = v && v.booking; return b ? `${b.status}|${b.date}|${b.time}` : 'none'; }
+function rememberApplicantStatus(v, silent) {
+  if (!applicant && !v) return;
+  const h = (applicant && applicant.h) || '';
+  const key = 'iv_sig_' + (h || 'x');
+  const sig = statusSig(v);
+  let prev = null;
+  try { prev = localStorage.getItem(key); } catch (e) {}
+  if (submitting) return;
+  if (!silent && prev && prev !== sig && !(prev === 'none' && v.booking && v.booking.status === 'pending')) {
+    const b = v.booking;
+    if (b && b.status === 'confirmed' && !prev.startsWith('confirmed|' + b.date)) notifyUser('면접 일정이 확정되었습니다', `${fmtDate(b.date)} ${fmtTime(b.time)}`);
+    else if (!b) notifyUser('면접 일정이 취소되었습니다', '자세한 내용은 담당자 안내를 확인해 주세요.');
+    else notifyUser('면접 일정이 변경되었습니다', `${fmtDate(b.date)} ${fmtTime(b.time)}`);
+    try { localStorage.setItem('iv_unseen_' + h, '1'); } catch (e) {}
+  }
+  try { localStorage.setItem(key, sig); } catch (e) {}
+  refreshApplicantBadge();
+}
+function refreshApplicantBadge() {
+  if (!applicant) return;
+  let unseen = false;
+  try { unseen = localStorage.getItem('iv_unseen_' + applicant.h) === '1'; } catch (e) {}
+  const tb = $('tb-my');
+  tb.textContent = '1'; tb.style.display = unseen ? 'inline-flex' : 'none';
+  updateBadge(unseen ? 1 : 0);
+}
+function clearApplicantUnseen() {
+  if (!applicant) return;
+  try { localStorage.removeItem('iv_unseen_' + applicant.h); } catch (e) {}
+  refreshApplicantBadge();
+}
+
+// ════════════════════════════════════════════════
+// 관리자: 데이터 조합
+// ════════════════════════════════════════════════
+const bookingOf = cid => { const c = candidates[cid]; if (!c || !c.hash) return null; const a = access[c.hash]; return a && a.booking ? a.booking : null; };
+const statusOf = cid => { const b = bookingOf(cid); return !b ? 'none' : (b.status === 'confirmed' ? 'confirmed' : 'pending'); };
+function allBookings() {
+  return Object.keys(candidates).map(cid => ({ cid, c: candidates[cid], b: bookingOf(cid) }))
+    .filter(x => x.b)
+    .sort((x, y) => x.b.date === y.b.date ? x.b.time.localeCompare(y.b.time) : x.b.date.localeCompare(y.b.date));
+}
+function bookingMap() { const m = {}; allBookings().forEach(x => { m[`${x.b.date}_${x.b.time}`] = x; }); return m; }
+const chipHTML = st => st === 'confirmed' ? '<span class="chip chip-conf">면접 확정</span>' : st === 'pending' ? '<span class="chip chip-pend">승인 대기</span>' : '<span class="chip chip-none">미예약</span>';
+
+function renderAdmin() {
+  if (mode !== 'admin') return;
+  checkNewPending();
+  const active = ['admin', 'cand', 'log', 'perm'].find(p => $('panel-' + p).classList.contains('active'));
+  if (active === 'perm') renderPerm();
+  if (active === 'admin') { renderStats(); renderPending(); renderSchedule(); renderMiniCal(); renderBookingList(); }
+  if (active === 'cand') renderCandidates();
+  if (active === 'log') renderLogs();
+  if ($('detail-modal').classList.contains('open') && detailCid) renderDetail(detailCid);
+}
+
+function renderStats() {
+  const ids = Object.keys(candidates);
+  const pend = ids.filter(id => statusOf(id) === 'pending').length;
+  const conf = ids.filter(id => statusOf(id) === 'confirmed').length;
+  $('admin-stats').innerHTML = `
+    <div class="stat"><div class="stat-val">${ids.length}</div><div class="stat-label">등록 예정자</div></div>
+    <div class="stat hl"><div class="stat-val">${pend}</div><div class="stat-label">승인 대기</div></div>
+    <div class="stat"><div class="stat-val">${conf}</div><div class="stat-label">면접 확정</div></div>
+    <div class="stat"><div class="stat-val">${ids.length - pend - conf}</div><div class="stat-label">미예약</div></div>`;
+}
+
+function renderPending() {
+  const list = allBookings().filter(x => x.b.status !== 'confirmed');
+  if (!list.length) { $('pending-list').innerHTML = '<div class="card-soft" style="text-align:center;font-size:13px;color:var(--ink-3);padding:18px;">승인 대기 중인 요청이 없습니다.</div>'; return; }
+  $('pending-list').innerHTML = list.map(x => `
+    <div class="req-item">
+      <div class="req-main">
+        <div class="req-name">${esc(x.c.name)}<span>${esc(x.c.position || '')}</span></div>
+        <div class="req-when"><i class="ti ti-calendar" style="font-size:14px;vertical-align:-2px;"></i> ${esc(fmtDate(x.b.date))} ${fmtTime(x.b.time)}</div>
+        <div class="req-meta">신청 ${x.b.bookedAt ? esc(fmtTs(x.b.bookedAt)) : '-'}${x.b.note ? ' · 전달사항 있음' : ''}</div>
+      </div>
+      <div class="req-actions">
+        <button class="btn btn-line btn-sm" onclick="openDetail('${x.cid}')">상세</button>
+        <button class="btn btn-ink btn-sm" onclick="approveBooking('${x.cid}')"><i class="ti ti-check"></i>승인</button>
+      </div>
+    </div>`).join('');
+}
+
+function mondayOf(k) { const d = keyToDate(k); const w = d.getDay(); d.setDate(d.getDate() + (w === 0 ? -6 : 1 - w)); return dateToKey(d); }
+window.schedMove = n => { schedOffset += n; renderSchedule(); };
+
+function renderSchedule() {
+  const start = addDaysKey(mondayOf(todayKey()), schedOffset * 14);
+  const cols = [];
+  for (let i = 0; i < 14; i++) { const k = addDaysKey(start, i); if (!isWeekend(k)) cols.push(k); }
+  $('sched-range').textContent = `${fmtShort(cols[0]).replace(/\(.\)/, '')} ~ ${fmtShort(cols[cols.length - 1]).replace(/\(.\)/, '')}`;
+  const tk = todayKey(), bm = bookingMap();
+  let html = '<thead><tr><th class="th-time">시간</th>';
+  cols.forEach(k => {
+    const d = keyToDate(k);
+    const cls = [HOLIDAYS[k] ? 'hol' : '', k === tk ? 'today-col' : ''].join(' ');
+    html += `<th class="${cls}">${d.getMonth() + 1}/${d.getDate()}<span class="sd">${DOW[d.getDay()]}${HOLIDAYS[k] ? ' · ' + esc(HOLIDAYS[k]) : ''}</span></th>`;
+  });
+  html += '</tr></thead><tbody>';
+  SLOT_TIMES.forEach(t => {
+    html += `<tr><td class="tc-time">${fmtTime(t)}</td>`;
+    cols.forEach(k => {
+      const x = bm[`${k}_${t}`];
+      if (x) {
+        const conf = x.b.status === 'confirmed';
+        html += `<td><span class="pill ${conf ? 'pill-conf' : 'pill-pend'}" title="${esc(x.c.name)} · ${esc(x.c.position || '')}" onclick="openDetail('${x.cid}')">${esc(x.c.name)}</span></td>`;
+      } else if (slotTaken(k, t)) {
+        html += `<td class="tc-orphan" title="예정자 정보와 연결되지 않은 예약 자리" onclick="clearOrphan('${k}','${t}')"></td>`;
+      } else if (HOLIDAYS[k]) html += '<td class="tc-holiday"></td>';
+      else if (blocked[k]) html += '<td class="tc-blocked"></td>';
+      else if (k < tk) html += '<td class="tc-past"></td>';
+      else html += `<td class="tc-open" title="클릭하여 일정 추가" onclick="openSchedModal('add',null,'${k}','${t}')"></td>`;
+    });
+    html += '</tr>';
+  });
+  $('sched-tbl').innerHTML = html + '</tbody>';
+}
+
+window.blkMove = n => { blkM += n; if (blkM < 0) { blkM = 11; blkY--; } if (blkM > 11) { blkM = 0; blkY++; } renderMiniCal(); };
+function renderMiniCal() {
+  $('blk-title').textContent = `${blkY}년 ${blkM + 1}월`;
+  let html = DOW.map((d, i) => `<div class="mini-dow${i === 0 || i === 6 ? ' red' : ''}">${d}</div>`).join('');
+  const first = new Date(blkY, blkM, 1).getDay(), days = new Date(blkY, blkM + 1, 0).getDate(), tk = todayKey();
+  for (let i = 0; i < first; i++) html += '<div class="mini-day md-empty"></div>';
+  for (let d = 1; d <= days; d++) {
+    const k = dk(blkY, blkM, d);
+    let cls = 'mini-day', click = '';
+    if (!isBusinessDay(k)) cls += ' md-off';
+    else if (k < tk) cls += ' md-dis';
+    else { cls += blocked[k] ? ' md-blocked' : ' md-open'; click = `onclick="toggleBlock('${k}')"`; }
+    if (k === tk) cls += ' md-today';
+    html += `<div class="${cls}" ${click} title="${HOLIDAYS[k] ? esc(HOLIDAYS[k]) : ''}">${d}</div>`;
+  }
+  $('mini-cal').innerHTML = html;
+}
+
+window.toggleBlock = async function (k) {
+  const was = !!blocked[k];
+  const u = {};
+  u[`blocked/${k}`] = was ? null : true;
+  u[`logs/${newKey('logs')}`] = { ts: Date.now(), actor: adminName(), action: 'lock', message: `${fmtShort(k)} 예약창을 ${was ? '해제' : '잠금'}했습니다.` };
+  try { await FB.update(R(''), u); showToast(`${fmtShort(k)} 예약창 ${was ? '해제' : '잠금'} 완료`); }
+  catch (e) { showToast('처리 권한이 없거나 연결이 불안정합니다.'); }
+};
+
+function renderBookingList() {
+  const all = allBookings();
+  if (!all.length) { $('booking-list').innerHTML = '<div class="card"><div class="empty"><i class="ti ti-calendar-off"></i>예약된 면접 일정이 없습니다.</div></div>'; return; }
+  $('booking-list').innerHTML = `<div class="list-wrap"><table class="list-tbl"><thead><tr>
+    <th>면접일</th><th>시간</th><th>이름</th><th>지원 직무</th><th>면접관</th><th>상태</th><th>관리</th></tr></thead><tbody>
+    ${all.map(x => `<tr>
+      <td>${esc(fmtShort(x.b.date))}</td><td style="font-weight:700;">${fmtTime(x.b.time)}</td>
+      <td style="font-weight:700;">${esc(x.c.name)}</td><td class="l">${esc(x.c.position || '-')}</td><td class="l">${esc(x.c.interviewer || '-')}</td>
+      <td>${chipHTML(statusOf(x.cid))}</td>
+      <td><button class="btn btn-ink btn-sm" onclick="openDetail('${x.cid}')">상세</button></td></tr>`).join('')}
+    </tbody></table></div>`;
+}
+
+// ════════════════════════════════════════════════
+// 관리자: 면접 예정자 목록
+// ════════════════════════════════════════════════
+window.setFilter = f => { candFilter = f; renderCandidates(); };
+window.renderCandidates = function () {
+  const ids = Object.keys(candidates);
+  const cnt = { all: ids.length, none: 0, pending: 0, confirmed: 0 };
+  ids.forEach(id => cnt[statusOf(id)]++);
+  const labels = { all: '전체', none: '미예약', pending: '승인 대기', confirmed: '면접 확정' };
+  $('filter-row').innerHTML = Object.keys(labels).map(f => `<button class="filter-chip${candFilter === f ? ' on' : ''}" onclick="setFilter('${f}')">${labels[f]} ${cnt[f]}</button>`).join('');
+  const q = ($('cand-search').value || '').trim().toLowerCase();
+  const qd = normPhone(q);
+  const list = ids.map(id => ({ id, c: candidates[id], st: statusOf(id) }))
+    .filter(x => candFilter === 'all' || x.st === candFilter)
+    .filter(x => !q || (x.c.name || '').toLowerCase().includes(q) || (x.c.position || '').toLowerCase().includes(q) || (x.c.interviewer || '').toLowerCase().includes(q) || (qd && (x.c.phone || '').includes(qd)))
+    .sort((a, b) => (b.c.createdAt || 0) - (a.c.createdAt || 0));
+  if (!list.length) { $('cand-list').innerHTML = `<div class="card"><div class="empty"><i class="ti ti-users"></i>${ids.length ? '조건에 맞는 예정자가 없습니다.' : '등록된 면접 예정자가 없습니다.<br>상단의 \'예정자 등록\' 버튼으로 추가해 주세요.'}</div></div>`; return; }
+  $('cand-list').innerHTML = list.map(x => {
+    const b = bookingOf(x.id);
+    const pfN = x.c.portfolios ? Object.keys(x.c.portfolios).length : 0;
+    const lkN = x.c.links ? x.c.links.length : 0;
+    return `<div class="cand-card" onclick="openDetail('${x.id}')">
+      <div class="cand-avatar">${esc((x.c.name || '?').slice(0, 1))}</div>
+      <div class="cand-main">
+        <div class="cand-name">${esc(x.c.name)} ${chipHTML(x.st)}</div>
+        <div class="cand-sub">${esc(x.c.position || '-')} · ${esc(fmtPhone(x.c.phone))}${b ? ` · ${esc(fmtShort(b.date))} ${fmtTime(b.time)}` : ''}</div>
+      </div>
+      <div class="cand-icons">
+        <i class="ti ti-file-cv ${x.c.resume ? 'on' : ''}" title="이력서"></i>
+        <i class="ti ti-folder ${pfN ? 'on' : ''}" title="포트폴리오 ${pfN}개"></i>
+        <i class="ti ti-link ${lkN ? 'on' : ''}" title="링크 ${lkN}개"></i>
+      </div>
+    </div>`;
+  }).join('');
+};
+
+// ── 상세 ──
+let detailCid = null;
+window.openDetail = function (cid) { if (!candidates[cid]) return; detailCid = cid; renderDetail(cid); openModal('detail-modal'); };
+function renderDetail(cid) {
+  const c = candidates[cid];
+  if (!c) { closeModal('detail-modal'); return; }
+  const b = bookingOf(cid), st = statusOf(cid);
+  $('detail-title').textContent = c.name;
+  const files = [];
+  if (c.resume) files.push({ ...c.resume, label: '이력서' });
+  if (c.portfolios) Object.keys(c.portfolios).forEach(fid => files.push({ fid, ...c.portfolios[fid], label: '포트폴리오' }));
+  const links = c.links || [];
+  let h = `
+    <div class="kv"><span class="k">상태</span><span class="v">${chipHTML(st)}</span></div>
+    <div class="kv"><span class="k">지원 직무</span><span class="v">${esc(c.position || '-')}</span></div>
+    <div class="kv"><span class="k">휴대폰 번호</span><span class="v"><a href="tel:${esc(c.phone)}" style="text-decoration:none;">${esc(fmtPhone(c.phone))}</a></span></div>
+    <div class="kv"><span class="k">담당 면접관</span><span class="v">${esc(c.interviewer || '-')}</span></div>
+    <div class="kv"><span class="k">면접 일정</span><span class="v">${b ? `${esc(fmtDate(b.date))} ${fmtTime(b.time)}` : '미예약'}</span></div>`;
+  if (b) {
+    h += `<div class="kv"><span class="k">신청 일시</span><span class="v">${b.bookedAt ? esc(fmtTs(b.bookedAt)) : '-'}</span></div>`;
+    if (b.confirmedAt) h += `<div class="kv"><span class="k">승인</span><span class="v">${esc(b.confirmedBy || '-')} · ${esc(fmtTs(b.confirmedAt))}</span></div>`;
+    if (b.note) h += `<div class="kv"><span class="k">전달 사항</span><span class="v" style="font-weight:500;">${esc(b.note)}</span></div>`;
+  }
+  if (c.memo) h += `<div class="kv"><span class="k">내부 메모</span><span class="v" style="font-weight:500;white-space:pre-wrap;">${esc(c.memo)}</span></div>`;
+  h += `<div class="sub-title"><i class="ti ti-paperclip"></i>제출 서류</div>`;
+  h += files.length ? `<div class="att-list">${files.map(f => `
+      <div class="att-item"><i class="ti ti-file-type-pdf ft"></i>
+        <div class="att-name">${esc(f.name)}<small>${f.label} · ${fmtSize(f.size || 0)}</small></div>
+        <button class="att-btn" onclick="openFile('${f.fid}',false)"><i class="ti ti-eye"></i>열기</button>
+        <button class="att-btn line" onclick="openFile('${f.fid}',true)" title="다운로드"><i class="ti ti-download"></i></button>
+      </div>`).join('')}</div>` : '<div class="field-help">등록된 서류가 없습니다.</div>';
+  h += `<div class="sub-title"><i class="ti ti-link"></i>레퍼런스 링크</div>`;
+  h += links.length ? `<div class="att-list">${links.map(l => `
+      <div class="att-item"><i class="ti ti-world ft"></i>
+        <div class="att-name">${esc(l.label || '링크')}<small>${esc(l.url)}</small></div>
+        <a class="att-btn" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer"><i class="ti ti-external-link"></i>열기</a>
+      </div>`).join('')}</div>` : '<div class="field-help">등록된 링크가 없습니다.</div>';
+  h += '<div class="modal-btns wrap">';
+  if (st === 'pending') h += `<button class="btn btn-ink" onclick="approveBooking('${cid}')"><i class="ti ti-check"></i>승인 (면접 확정)</button>`;
+  if (b) h += `<button class="btn btn-line" onclick="openSchedModal('change','${cid}')"><i class="ti ti-calendar-event"></i>일정 변경</button>
+               <button class="btn btn-line" onclick="cancelBooking('${cid}')"><i class="ti ti-calendar-x"></i>예약 취소</button>`;
+  else h += `<button class="btn btn-ink" onclick="openSchedModal('add','${cid}')"><i class="ti ti-calendar-plus"></i>일정 추가</button>`;
+  if (st === 'confirmed') h += `<button class="btn btn-pink" onclick="copyConfirmMsg('${cid}')"><i class="ti ti-copy"></i>안내 문구 복사</button>`;
+  h += `<button class="btn btn-line" onclick="openRegModal('${cid}')"><i class="ti ti-pencil"></i>정보 수정</button>
+        <button class="btn btn-line" style="color:var(--c-full-tx);" onclick="deleteCandidate('${cid}')"><i class="ti ti-trash"></i>예정자 삭제</button>
+        <button class="btn btn-line" onclick="closeModal('detail-modal')">닫기</button></div>`;
+  $('detail-body').innerHTML = h;
+}
+
+window.copyConfirmMsg = async function (cid) {
+  const c = candidates[cid], b = bookingOf(cid);
+  if (!c || !b) return;
+  const txt = CONFIRM_MSG(c.name, c.position || '', fmtDate(b.date), fmtTime(b.time));
+  try { await navigator.clipboard.writeText(txt); showToast('안내 문구가 복사되었습니다.'); }
+  catch (e) { prompt('아래 문구를 복사해 주세요.', txt); }
+};
+
+// ── PDF 열기 ──
+function b64ToBlob(b64, type) {
+  const bin = atob(b64); const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type });
+}
+window.openFile = async function (fid, download) {
+  let w = null;
+  if (!download && !fileCache[fid]) {
+    w = window.open('', '_blank');
+    if (w) w.document.write('<p style="font-family:sans-serif;padding:24px;color:#555;">파일을 불러오는 중입니다...</p>');
+  }
+  try {
+    let f = fileCache[fid];
+    if (!f) {
+      showToast('파일을 불러오는 중입니다...');
+      const s = await FB.get(R('files/' + fid));
+      if (!s.exists()) { if (w) w.close(); return showToast('파일을 찾을 수 없습니다.'); }
+      const v = s.val();
+      f = { name: v.name, url: URL.createObjectURL(b64ToBlob(v.data, 'application/pdf')) };
+      fileCache[fid] = f;
+    }
+    if (download) {
+      const a = document.createElement('a'); a.href = f.url; a.download = f.name || 'file.pdf';
+      document.body.appendChild(a); a.click(); a.remove();
+    } else if (w) { w.location.href = f.url; }
+    else { const w2 = window.open(f.url, '_blank'); if (!w2) { const a = document.createElement('a'); a.href = f.url; a.download = f.name || 'file.pdf'; document.body.appendChild(a); a.click(); a.remove(); } }
+  } catch (e) { console.error(e); if (w) w.close(); showToast('파일을 여는 중 오류가 발생했습니다.'); }
+};
+
+// ════════════════════════════════════════════════
+// 관리자: 예정자 등록/수정
+// ════════════════════════════════════════════════
+window.openRegModal = function (cid) {
+  closeModal('detail-modal');
+  const c = cid ? candidates[cid] : null;
+  regState = {
+    cid: cid || null,
+    resume: c && c.resume ? { ...c.resume } : null,
+    newResume: null,
+    portfolios: c && c.portfolios ? Object.keys(c.portfolios).map(fid => ({ fid, ...c.portfolios[fid] })) : [],
+    newPf: [],
+    removed: []
+  };
+  $('reg-title').textContent = c ? '면접 예정자 정보 수정' : '면접 예정자 등록';
+  $('rg-name').value = c ? c.name : '';
+  $('rg-phone').value = c ? fmtPhone(c.phone) : '';
+  $('rg-position').value = c ? (c.position || '') : '';
+  $('rg-interviewer').value = c ? (c.interviewer || '') : '';
+  $('rg-memo').value = c ? (c.memo || '') : '';
+  $('rg-links').innerHTML = '';
+  (c && c.links && c.links.length ? c.links : [{ label: '', url: '' }]).forEach(l => addLinkRow(l.label, l.url));
+  renderRegFiles();
+  openModal('reg-modal');
+};
+
+window.addLinkRow = function (label = '', url = '') {
+  const div = document.createElement('div');
+  div.className = 'link-edit-row';
+  div.innerHTML = `<input type="text" class="field-input lk-label" placeholder="이름 (예: GitHub)" value="${esc(label)}">
+    <input type="url" class="field-input lk-url" placeholder="https://" value="${esc(url)}">
+    <button class="att-x" onclick="this.parentElement.remove()" title="삭제"><i class="ti ti-x"></i></button>`;
+  $('rg-links').appendChild(div);
+};
+
+function renderRegFiles() {
+  const s = regState;
+  let r = '';
+  const cur = s.newResume ? { name: s.newResume.name, size: s.newResume.size, isNew: true } : s.resume;
+  if (cur) r += `<div class="att-item" style="margin-bottom:6px;"><i class="ti ti-file-type-pdf ft"></i><div class="att-name">${esc(cur.name)}<small>${fmtSize(cur.size || 0)}${cur.isNew ? ' · 새 파일' : ''}</small></div><button class="att-x" onclick="removeResume()" title="삭제"><i class="ti ti-x"></i></button></div>`;
+  r += `<label class="file-drop"><i class="ti ti-upload"></i>${cur ? '다른 파일로 교체' : 'PDF 파일 선택'}<input type="file" accept="application/pdf,.pdf" onchange="pickResume(this)"></label>`;
+  $('rg-resume-box').innerHTML = r;
+  let p = '';
+  s.portfolios.forEach((f, i) => { p += `<div class="att-item" style="margin-bottom:6px;"><i class="ti ti-file-type-pdf ft"></i><div class="att-name">${esc(f.name)}<small>${fmtSize(f.size || 0)}</small></div><button class="att-x" onclick="removePf(${i},false)"><i class="ti ti-x"></i></button></div>`; });
+  s.newPf.forEach((f, i) => { p += `<div class="att-item" style="margin-bottom:6px;"><i class="ti ti-file-type-pdf ft"></i><div class="att-name">${esc(f.name)}<small>${fmtSize(f.size)} · 새 파일</small></div><button class="att-x" onclick="removePf(${i},true)"><i class="ti ti-x"></i></button></div>`; });
+  p += `<label class="file-drop"><i class="ti ti-upload"></i>PDF 파일 추가 (여러 개 선택 가능)<input type="file" accept="application/pdf,.pdf" multiple onchange="pickPf(this)"></label>`;
+  $('rg-pf-box').innerHTML = p;
+  document.querySelectorAll('.max-mb').forEach(el => el.textContent = MAX_FILE_MB);
+}
+function validPdf(f) {
+  if (!(f.type === 'application/pdf' || /\.pdf$/i.test(f.name))) { showToast(`'${f.name}'은(는) PDF 파일이 아닙니다.`); return false; }
+  if (f.size > MAX_FILE_MB * 1048576) { showToast(`'${f.name}' 용량이 ${MAX_FILE_MB}MB를 초과합니다. 링크로 첨부해 주세요.`); return false; }
+  return true;
+}
+window.pickResume = function (input) { const f = input.files[0]; if (f && validPdf(f)) { regState.newResume = f; renderRegFiles(); } input.value = ''; };
+window.removeResume = function () { if (regState.newResume) regState.newResume = null; else if (regState.resume) { regState.removed.push(regState.resume.fid); regState.resume = null; } renderRegFiles(); };
+window.pickPf = function (input) { [...input.files].forEach(f => { if (validPdf(f)) regState.newPf.push(f); }); input.value = ''; renderRegFiles(); };
+window.removePf = function (i, isNew) { if (isNew) regState.newPf.splice(i, 1); else { regState.removed.push(regState.portfolios[i].fid); regState.portfolios.splice(i, 1); } renderRegFiles(); };
+
+const readB64 = f => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(f); });
+async function uploadFile(f, cid) {
+  const fid = newKey('files');
+  const data = await readB64(f);
+  await FB.set(R('files/' + fid), { name: f.name, size: f.size, type: 'application/pdf', data, cid, uploadedAt: Date.now(), uploadedBy: adminName() });
+  return { fid, name: f.name, size: f.size };
+}
+
+window.saveCandidate = async function () {
+  const s = regState;
+  const name = $('rg-name').value.trim(), phone = normPhone($('rg-phone').value), position = $('rg-position').value.trim();
+  if (!name) return showToast('이름을 입력해 주세요.');
+  if (phone.length < 10 || phone.length > 11) return showToast('휴대폰 번호를 정확히 입력해 주세요.');
+  if (!position) return showToast('지원 직무를 입력해 주세요.');
+  const dup = Object.keys(candidates).find(id => id !== s.cid && candidates[id].phone === phone);
+  if (dup) return showToast(`이미 등록된 번호입니다. (${candidates[dup].name})`);
+  const links = [...document.querySelectorAll('#rg-links .link-edit-row')].map(r => {
+    let url = r.querySelector('.lk-url').value.trim();
+    if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+    return { label: r.querySelector('.lk-label').value.trim(), url };
+  }).filter(l => l.url);
+
+  const btn = $('rg-save-btn'); btn.disabled = true; btn.textContent = '저장 중...';
+  try {
+    const isNew = !s.cid;
+    const cid = s.cid || newKey('candidates');
+    const old = isNew ? null : candidates[cid];
+    const h = await makeHash(name, phone);
+    let resume = s.resume;
+    if (s.newResume) { showToast('이력서 업로드 중...'); if (resume) s.removed.push(resume.fid); resume = await uploadFile(s.newResume, cid); }
+    const portfolios = {};
+    s.portfolios.forEach(f => { portfolios[f.fid] = { name: f.name, size: f.size }; });
+    for (const f of s.newPf) { showToast(`포트폴리오 업로드 중... (${f.name})`); const up = await uploadFile(f, cid); portfolios[up.fid] = { name: up.name, size: up.size }; }
+
+    const ts = Date.now();
+    const u = {};
+    u[`candidates/${cid}`] = {
+      name, phone, position,
+      interviewer: $('rg-interviewer').value.trim(),
+      memo: $('rg-memo').value.trim(),
+      resume: resume ? { fid: resume.fid, name: resume.name, size: resume.size } : null,
+      portfolios: Object.keys(portfolios).length ? portfolios : null,
+      links: links.length ? links : null,
+      hash: h,
+      createdAt: old ? (old.createdAt || ts) : ts,
+      createdBy: old ? (old.createdBy || '') : adminName(),
+      updatedAt: ts, updatedBy: adminName()
+    };
+    if (old && old.hash && old.hash !== h) {
+      const oldAcc = access[old.hash] || {};
+      u[`access/${old.hash}`] = null;
+      u[`access/${h}`] = { cid, name, position, booking: oldAcc.booking || null };
+      if (oldAcc.booking) u[`slotOwners/${oldAcc.booking.date}/${oldAcc.booking.time}`] = h;
+    } else {
+      u[`access/${h}/cid`] = cid; u[`access/${h}/name`] = name; u[`access/${h}/position`] = position;
+    }
+    s.removed.forEach(fid => { u[`files/${fid}`] = null; delete fileCache[fid]; });
+    u[`logs/${newKey('logs')}`] = { ts, actor: adminName(), action: 'register', message: isNew ? `${name}(${position}) 면접 예정자를 등록했습니다.` : `${name}(${position}) 면접 예정자 정보를 수정했습니다.` };
+    await FB.update(R(''), u);
+    closeModal('reg-modal');
+    showToast(isNew ? '면접 예정자가 등록되었습니다.' : '정보가 수정되었습니다.');
+  } catch (e) {
+    console.error(e);
+    showToast(isPermErr(e) ? '저장 권한이 없습니다. 로그인 상태를 확인해 주세요.' : '저장 중 오류가 발생했습니다. 다시 시도해 주세요.');
+  } finally { btn.disabled = false; btn.textContent = '저장'; }
+};
+
+window.deleteCandidate = function (cid) {
+  const c = candidates[cid]; if (!c) return;
+  openConfirm('예정자 삭제', `'${c.name}(${c.position || '-'})' 면접 예정자를 삭제하시겠습니까?<br>예약 일정과 첨부 서류도 함께 삭제되며 되돌릴 수 없습니다.`, '삭제', async () => {
+    const u = {}, b = bookingOf(cid);
+    u[`candidates/${cid}`] = null;
+    if (c.hash) u[`access/${c.hash}`] = null;
+    if (b) { u[`slots/${b.date}/${b.time}`] = null; u[`slotOwners/${b.date}/${b.time}`] = null; }
+    if (c.resume) u[`files/${c.resume.fid}`] = null;
+    if (c.portfolios) Object.keys(c.portfolios).forEach(fid => { u[`files/${fid}`] = null; });
+    u[`logs/${newKey('logs')}`] = { ts: Date.now(), actor: adminName(), action: 'cancel', message: `${c.name}(${c.position || '-'}) 면접 예정자를 삭제했습니다.${b ? ` (예약 ${fmtShort(b.date)} ${fmtTime(b.time)} 함께 삭제)` : ''}` };
+    try { await FB.update(R(''), u); closeModal('detail-modal'); showToast('삭제되었습니다.'); }
+    catch (e) { showToast('삭제 권한이 없거나 연결이 불안정합니다.'); }
+  });
+};
+
+// ════════════════════════════════════════════════
+// 관리자: 일정 승인 / 추가 / 변경 / 취소
+// ════════════════════════════════════════════════
+window.approveBooking = async function (cid) {
+  const c = candidates[cid], b = bookingOf(cid);
+  if (!c || !b) return;
+  const ts = Date.now(), u = {};
+  u[`slots/${b.date}/${b.time}`] = 'confirmed';
+  u[`access/${c.hash}/booking/status`] = 'confirmed';
+  u[`access/${c.hash}/booking/confirmedAt`] = ts;
+  u[`access/${c.hash}/booking/confirmedBy`] = adminName();
+  u[`logs/${newKey('logs')}`] = { ts, actor: adminName(), action: 'approve', message: `${c.name}(${c.position || '-'})님의 ${fmtShort(b.date)} ${fmtTime(b.time)} 면접을 승인(확정)했습니다.` };
+  try { await FB.update(R(''), u); showToast(`${c.name}님 면접이 확정되었습니다.`); }
+  catch (e) { showToast('승인 권한이 없거나 연결이 불안정합니다.'); }
+};
+
+window.cancelBooking = function (cid) {
+  const c = candidates[cid], b = bookingOf(cid);
+  if (!c || !b) return;
+  openConfirm('예약 취소', `'${c.name}'님의 ${fmtDate(b.date)} ${fmtTime(b.time)} 면접 예약을 취소하시겠습니까?<br>취소 후 해당 예정자는 다시 예약을 신청할 수 있습니다.`, '예약 취소', async () => {
+    const u = {};
+    u[`slots/${b.date}/${b.time}`] = null;
+    u[`slotOwners/${b.date}/${b.time}`] = null;
+    u[`access/${c.hash}/booking`] = null;
+    u[`logs/${newKey('logs')}`] = { ts: Date.now(), actor: adminName(), action: 'cancel', message: `${c.name}(${c.position || '-'})님의 ${fmtShort(b.date)} ${fmtTime(b.time)} 면접 예약을 취소했습니다.` };
+    try { await FB.update(R(''), u); showToast('예약이 취소되었습니다.'); }
+    catch (e) { showToast('취소 권한이 없거나 연결이 불안정합니다.'); }
+  });
+};
+
+window.clearOrphan = function (k, t) {
+  openConfirm('예약 자리 정리', `${fmtDate(k)} ${fmtTime(t)} 자리가 예약 상태이지만 연결된 예정자 정보가 없습니다.<br>이 자리를 비우시겠습니까?`, '자리 비우기', async () => {
+    const u = {};
+    u[`slots/${k}/${t}`] = null; u[`slotOwners/${k}/${t}`] = null;
+    u[`logs/${newKey('logs')}`] = { ts: Date.now(), actor: adminName(), action: 'cancel', message: `${fmtShort(k)} ${fmtTime(t)} 미연결 예약 자리를 정리했습니다.` };
+    try { await FB.update(R(''), u); showToast('정리되었습니다.'); } catch (e) { showToast('처리 권한이 없습니다.'); }
+  });
+};
+
+function adminDateOptions(includeKey) {
+  const keys = [], tk = todayKey();
+  for (let i = 0; i < 120; i++) { const k = addDaysKey(tk, i); if (isBusinessDay(k)) keys.push(k); }
+  if (includeKey && !keys.includes(includeKey)) keys.unshift(includeKey);
+  return keys.map(k => `<option value="${k}">${fmtShort(k)}${blocked[k] ? ' · 잠금' : ''}</option>`).join('');
+}
+window.fillTimeOptions = function (keepT) {
+  const k = $('sc-date').value; if (!k) return;
+  const own = schedState && schedState.mode === 'change' ? bookingOf(schedState.cid) : null;
+  $('sc-time').innerHTML = SLOT_TIMES.map(t => {
+    const mine = own && own.date === k && own.time === t;
+    const taken = slotTaken(k, t) && !mine;
+    return `<option value="${t}" ${taken ? 'disabled' : ''}>${fmtTime(t)}${taken ? ' (예약됨)' : mine ? ' (현재)' : ''}</option>`;
+  }).join('');
+  const keepOpt = keepT ? $('sc-time').querySelector(`option[value="${keepT}"]`) : null;
+  const first = keepOpt && !keepOpt.disabled ? keepT : [...$('sc-time').options].find(o => !o.disabled)?.value;
+  if (first) $('sc-time').value = first;
+};
+
+window.openSchedModal = function (mode2, cid, k, t) {
+  closeModal('detail-modal');
+  schedState = { mode: mode2, cid: cid || null };
+  if (mode2 === 'add') {
+    const free = Object.keys(candidates).filter(id => !bookingOf(id)).sort((a, b) => (candidates[a].name || '').localeCompare(candidates[b].name || ''));
+    if (!free.length) return showToast('예약 내역이 없는 등록 예정자가 없습니다. 먼저 예정자를 등록해 주세요.');
+    $('sc-title').textContent = '면접 일정 추가';
+    $('sc-cand-row').style.display = cid ? 'none' : '';
+    $('sc-who-row').style.display = cid ? '' : 'none';
+    $('sc-cand').innerHTML = free.map(id => `<option value="${id}">${esc(candidates[id].name)} · ${esc(candidates[id].position || '-')}</option>`).join('');
+    if (cid) { $('sc-cand').value = cid; $('sc-who').innerHTML = `<b>${esc(candidates[cid].name)}</b> · ${esc(candidates[cid].position || '-')}`; }
+    $('sc-status-row').style.display = '';
+    $('sc-status').value = 'confirmed';
+    $('sc-date').innerHTML = adminDateOptions(k);
+    if (k) $('sc-date').value = k;
+    fillTimeOptions(t);
+  } else {
+    const c = candidates[cid], b = bookingOf(cid);
+    if (!c || !b) return;
+    $('sc-title').textContent = '면접 일정 변경';
+    $('sc-cand-row').style.display = 'none';
+    $('sc-who-row').style.display = '';
+    $('sc-who').innerHTML = `<b>${esc(c.name)}</b> · ${esc(c.position || '-')}<br><span style="color:var(--ink-3);font-size:12px;">현재 일정: ${esc(fmtDate(b.date))} ${fmtTime(b.time)} (${b.status === 'confirmed' ? '확정' : '승인 대기'})</span>`;
+    $('sc-status-row').style.display = 'none';
+    $('sc-date').innerHTML = adminDateOptions(b.date);
+    $('sc-date').value = b.date;
+    fillTimeOptions(b.time);
+  }
+  openModal('sched-modal');
+};
+
+window.saveSched = async function () {
+  const s = schedState; if (!s) return;
+  const k = $('sc-date').value, t = $('sc-time').value;
+  if (!k || !t) return showToast('날짜와 시간을 선택해 주세요.');
+  const ts = Date.now(), u = {};
+  if (s.mode === 'add') {
+    const cid = $('sc-cand').value, c = candidates[cid];
+    if (!c) return showToast('예정자를 선택해 주세요.');
+    if (bookingOf(cid)) return showToast('이미 예약 내역이 있는 예정자입니다.');
+    if (slotTaken(k, t)) return showToast('해당 시간은 이미 예약되어 있습니다.');
+    const st = $('sc-status').value;
+    u[`slots/${k}/${t}`] = st;
+    u[`slotOwners/${k}/${t}`] = c.hash;
+    u[`access/${c.hash}/cid`] = cid; u[`access/${c.hash}/name`] = c.name; u[`access/${c.hash}/position`] = c.position || '';
+    const bk = { date: k, time: t, status: st, bookedAt: ts, note: '', createdBy: adminName() };
+    if (st === 'confirmed') { bk.confirmedAt = ts; bk.confirmedBy = adminName(); }
+    u[`access/${c.hash}/booking`] = bk;
+    u[`logs/${newKey('logs')}`] = { ts, actor: adminName(), action: st === 'confirmed' ? 'approve' : 'create', message: `${c.name}(${c.position || '-'})님의 면접을 ${fmtShort(k)} ${fmtTime(t)}로 직접 추가했습니다. (${st === 'confirmed' ? '확정' : '승인 대기'})` };
+  } else {
+    const c = candidates[s.cid], b = bookingOf(s.cid);
+    if (!c || !b) return;
+    if (b.date === k && b.time === t) return showToast('현재 일정과 동일합니다.');
+    if (slotTaken(k, t)) return showToast('해당 시간은 이미 예약되어 있습니다.');
+    u[`slots/${b.date}/${b.time}`] = null;
+    u[`slotOwners/${b.date}/${b.time}`] = null;
+    u[`slots/${k}/${t}`] = b.status === 'confirmed' ? 'confirmed' : 'pending';
+    u[`slotOwners/${k}/${t}`] = c.hash;
+    u[`access/${c.hash}/booking/date`] = k;
+    u[`access/${c.hash}/booking/time`] = t;
+    u[`access/${c.hash}/booking/changedAt`] = ts;
+    u[`access/${c.hash}/booking/changedBy`] = adminName();
+    u[`logs/${newKey('logs')}`] = { ts, actor: adminName(), action: 'change', message: `${c.name}(${c.position || '-'})님의 면접을 ${fmtShort(b.date)} ${fmtTime(b.time)} → ${fmtShort(k)} ${fmtTime(t)}로 변경했습니다.` };
+  }
+  const btn = $('sc-save-btn'); btn.disabled = true;
+  try { await FB.update(R(''), u); closeModal('sched-modal'); showToast(s.mode === 'add' ? '면접 일정이 추가되었습니다.' : '면접 일정이 변경되었습니다.'); }
+  catch (e) { showToast('저장 권한이 없거나 연결이 불안정합니다.'); }
+  finally { btn.disabled = false; }
+};
+
+// ════════════════════════════════════════════════
+// 변경 이력
+// ════════════════════════════════════════════════
+const LOG_LABEL = { create: '신청', approve: '승인', change: '변경', cancel: '취소·삭제', register: '등록·수정', lock: '잠금', perm: '권한' };
+function renderLogs() {
+  const sorted = [...logs].sort((a, b) => b.ts - a.ts);
+  if (!sorted.length) { $('log-list').innerHTML = '<div class="empty"><i class="ti ti-history"></i>기록된 이력이 없습니다.</div>'; return; }
+  $('log-list').innerHTML = sorted.map(l => `
+    <div class="log-row">
+      <div class="log-ts">${esc(fmtTs(l.ts))}</div>
+      <div class="log-body"><span class="log-badge lb-${esc(l.action)}">${esc(LOG_LABEL[l.action] || l.action)}</span><span class="log-actor">${esc(l.actor)}</span>${esc(l.message)}</div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════
+// 권한 관리
+// ════════════════════════════════════════════════
+function renderPerm() {
+  const owner = isOwner();
+  $('perm-form').style.display = owner ? '' : 'none';
+  $('perm-readonly').style.display = owner ? 'none' : '';
+  let html = OWNER_EMAILS.map(em => {
+    const e = adminList[emailKey(em)];
+    return `<div class="perm-item"><div class="cand-avatar"><i class="ti ti-crown"></i></div>
+      <div class="perm-main"><div class="perm-name">${esc((e && e.name) || em.split('@')[0])} <span class="chip chip-conf">최고 관리자</span></div><div class="perm-sub">${esc(em)}</div></div></div>`;
+  }).join('');
+  const rows = Object.keys(adminList).map(k => ({ k, ...adminList[k] }))
+    .filter(x => x.email && !OWNER_EMAILS.includes(x.email.toLowerCase()))
+    .sort((a, b) => (a.addedAt || 0) - (b.addedAt || 0));
+  html += rows.map(x => `<div class="perm-item"><div class="cand-avatar">${esc((x.name || x.email).slice(0, 1))}</div>
+      <div class="perm-main"><div class="perm-name">${esc(x.name || '-')}</div><div class="perm-sub">${esc(x.email)}${x.addedBy ? ` · ${esc(x.addedBy)} 등록` : ''}${x.addedAt ? ` · ${esc(fmtTs(x.addedAt).slice(0, 8))}` : ''}</div></div>
+      ${owner ? `<button class="btn btn-line btn-sm" style="color:var(--c-full-tx);" onclick="removeAdmin('${esc(x.k)}')"><i class="ti ti-trash"></i>삭제</button>` : ''}</div>`).join('');
+  if (!rows.length) html += '<div class="field-help" style="text-align:center;padding:10px;">추가로 등록된 계정이 없습니다.</div>';
+  $('perm-list').innerHTML = html;
+}
+
+window.addAdmin = async function () {
+  if (!isOwner()) return showToast('권한 추가는 최고 관리자만 할 수 있습니다.');
+  const email = $('pm-email').value.trim().toLowerCase(), name = $('pm-name').value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return showToast('이메일 주소를 정확히 입력해 주세요.');
+  if (!name) return showToast('이름 · 직책을 입력해 주세요.');
+  if (adminList[emailKey(email)] || OWNER_EMAILS.includes(email)) return showToast('이미 등록된 계정입니다.');
+  const ts = Date.now(), u = {};
+  u[`adminList/${emailKey(email)}`] = { email, name, addedAt: ts, addedBy: adminName() };
+  u[`${ROOT}/logs/${newKey('logs')}`] = { ts, actor: adminName(), action: 'perm', message: `${name}(${email}) 계정에 관리자 권한을 추가했습니다.` };
+  try {
+    await FB.update(FB.ref(FB.db), u);
+    $('pm-email').value = ''; $('pm-name').value = '';
+    showToast(`${name}님 권한이 추가되었습니다. 회사 Google 계정으로 바로 로그인할 수 있습니다.`);
+  } catch (e) { showToast('권한 추가에 실패했습니다. 보안 규칙의 최고 관리자 이메일을 확인해 주세요.'); }
+};
+
+window.removeAdmin = function (k) {
+  const x = adminList[k]; if (!x) return;
+  openConfirm('권한 삭제', `'${x.name}(${x.email})' 계정의 접속 권한을 삭제하시겠습니까?<br>삭제 즉시 해당 계정은 관리자 화면에 접근할 수 없습니다.`, '권한 삭제', async () => {
+    const u = {};
+    u[`adminList/${k}`] = null;
+    u[`${ROOT}/logs/${newKey('logs')}`] = { ts: Date.now(), actor: adminName(), action: 'perm', message: `${x.name}(${x.email}) 계정의 관리자 권한을 삭제했습니다.` };
+    try { await FB.update(FB.ref(FB.db), u); showToast('권한이 삭제되었습니다.'); }
+    catch (e) { showToast('권한 삭제에 실패했습니다.'); }
+  });
+};
+
+// ════════════════════════════════════════════════
+// CSV 내보내기
+// ════════════════════════════════════════════════
+function downloadCSV(csv, name) {
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+const csvEsc = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+window.exportCSV = function () {
+  let csv = '면접일자,면접시간,이름,휴대폰 번호,지원 직무,담당 면접관,상태,신청일시,승인자,승인일시,전달사항\n';
+  allBookings().forEach(x => {
+    csv += [x.b.date, fmtTime(x.b.time), x.c.name, fmtPhone(x.c.phone), x.c.position, x.c.interviewer, x.b.status === 'confirmed' ? '면접 확정' : '승인 대기',
+      x.b.bookedAt ? fmtTs(x.b.bookedAt) : '', x.b.confirmedBy || '', x.b.confirmedAt ? fmtTs(x.b.confirmedAt) : '', x.b.note || ''].map(csvEsc).join(',') + '\n';
+  });
+  downloadCSV(csv, `면접일정_${todayKey()}.csv`);
+  showToast('면접 일정 CSV가 다운로드되었습니다.');
+};
+window.exportLogsCSV = function () {
+  let csv = '타임스탬프,처리자,구분,내용\n';
+  [...logs].sort((a, b) => a.ts - b.ts).forEach(l => { csv += [fmtTs(l.ts), l.actor, LOG_LABEL[l.action] || l.action, l.message].map(csvEsc).join(',') + '\n'; });
+  downloadCSV(csv, `면접스케줄러_변경이력_${todayKey()}.csv`);
+  showToast('변경 이력 CSV가 다운로드되었습니다.');
+};
+
+// ════════════════════════════════════════════════
+// 알림 · 배지
+// (앱이 열려 있거나 백그라운드 탭에 살아있을 때 동작)
+// ════════════════════════════════════════════════
+function checkNewPending() {
+  const ids = Object.keys(candidates).filter(id => statusOf(id) === 'pending');
+  const tb = $('tb-admin');
+  tb.textContent = ids.length; tb.style.display = ids.length ? 'inline-flex' : 'none';
+  updateBadge(ids.length);
+  if (!adminLoaded.c || !adminLoaded.a) return;
+  const sigs = new Set(ids.map(id => { const b = bookingOf(id); return `${id}|${b.date}|${b.time}`; }));
+  if (knownPending) {
+    ids.forEach(id => {
+      const b = bookingOf(id);
+      if (!knownPending.has(`${id}|${b.date}|${b.time}`) && !knownPending.has('id:' + id)) {
+        notifyUser('새 면접 예약 신청', `${candidates[id].name}(${candidates[id].position || '-'}) · ${fmtShort(b.date)} ${fmtTime(b.time)}`);
+      }
+    });
+  }
+  ids.forEach(id => sigs.add('id:' + id));
+  knownPending = sigs;
+}
+
+function updateBadge(n) {
+  document.title = n ? `(${n}) 안투안 면접 스케줄러` : '안투안 면접 스케줄러';
+  const bb = $('bell-badge');
+  bb.textContent = n; bb.style.display = n ? 'inline-flex' : 'none';
+  try {
+    if ('setAppBadge' in navigator) { n ? navigator.setAppBadge(n).catch(() => {}) : navigator.clearAppBadge().catch(() => {}); }
+  } catch (e) {}
+}
+
+function notifyUser(title, body) {
+  showToast(`🔔 ${title} — ${body}`);
+  try {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const n = new Notification(title, { body, tag: 'antuan-interview', renotify: true });
+      n.onclick = () => { window.focus(); n.close(); };
+    }
+  } catch (e) { /* 일부 모바일 브라우저는 페이지 알림 미지원 */ }
+}
+
+function refreshBell() {
+  const on = 'Notification' in window && Notification.permission === 'granted';
+  $('bell-icon').className = on ? 'ti ti-bell-ringing' : 'ti ti-bell-off';
+  $('bell-btn').title = on ? '알림 켜짐' : '알림 켜기';
+}
+window.toggleNotify = async function () {
+  if (!('Notification' in window)) return showToast('이 브라우저는 알림을 지원하지 않습니다. 앱 안의 배지로 확인해 주세요.');
+  if (Notification.permission === 'granted') return showToast('알림이 켜져 있습니다. 끄려면 브라우저 사이트 설정에서 변경해 주세요.');
+  if (Notification.permission === 'denied') return showToast('알림이 차단되어 있습니다. 브라우저 사이트 설정에서 허용해 주세요.');
+  try {
+    const p = await Notification.requestPermission();
+    refreshBell();
+    showToast(p === 'granted' ? '알림이 켜졌습니다.' : '알림이 허용되지 않았습니다.');
+  } catch (e) { showToast('알림 설정을 변경할 수 없습니다.'); }
+};
+
+// ════════════════════════════════════════════════
+// 모달 · 토스트
+// ════════════════════════════════════════════════
+window.openModal = id => { $(id).classList.add('open'); document.body.style.overflow = 'hidden'; };
+window.closeModal = id => {
+  $(id).classList.remove('open');
+  if (id === 'detail-modal') detailCid = null;
+  if (!document.querySelector('.modal-overlay.open')) document.body.style.overflow = '';
+};
+function closeAllModals() { document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id)); }
+document.querySelectorAll('.modal-overlay').forEach(el => el.addEventListener('click', e => { if (e.target === el) closeModal(el.id); }));
+
+function openConfirm(title, msg, okText, cb) {
+  $('cf-title').textContent = title;
+  $('cf-msg').innerHTML = esc(msg).replace(/&lt;br&gt;/g, '<br>');
+  $('cf-ok').textContent = okText;
+  cfCallback = cb;
+  openModal('confirm-modal');
+}
+$('cf-ok').addEventListener('click', async () => {
+  const cb = cfCallback; cfCallback = null;
+  closeModal('confirm-modal');
+  if (cb) await cb();
+});
+
+let toastTimer = null;
+window.showToast = function (msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+};
+
+// ════════════════════════════════════════════════
+// 앱 시작
+// ════════════════════════════════════════════════
+async function init() {
+  const ok = await initFirebase();
+  if (!ok) {
+    $('loader-spinner').style.display = 'none';
+    $('loader-text').innerHTML = '서버에 연결할 수 없습니다.<br>네트워크 상태를 확인한 뒤 새로고침해 주세요.';
+    return;
+  }
+  attachPublic();
+  refreshBell();
+  let first = true;
+  FB.onAuthStateChanged(FB.auth, async user => {
+    if (user && !user.isAnonymous) {
+      adminUser = user;
+      const ok = await verifyAdmin(user);
+      if (ok) enterAdmin();
+      else {
+        const em = user.email || '';
+        adminUser = null; myAdminEntry = null;
+        try { await FB.signOut(FB.auth); } catch (e) {}
+        showGate();
+        showToast(`${em} 계정은 접속 권한이 없습니다. 채용 담당자에게 권한 등록을 요청해 주세요.`);
+      }
+    } else {
+      if (!user) { adminUser = null; myAdminEntry = null; }
+      if (mode === 'admin') { detachAdmin(); showGate(); }
+      else if (first) { const restored = await restoreApplicant(); if (!restored) showGate(); }
+    }
+    if (first) { first = false; hideLoading(); }
+  });
+}
+init();
+</script>
+</body>
+</html>
