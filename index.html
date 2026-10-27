@@ -853,7 +853,7 @@ const FIREBASE_CONFIG = {
 // 최고 관리자(권한 관리 가능). 보안 규칙 파일의 이메일과 반드시 같아야 합니다.
 const OWNER_EMAILS = ['blair.h@antuan.co.kr'];
 // 관리자 로그인이 허용되는 Google Workspace 도메인 (보안 규칙 파일과 반드시 같아야 합니다)
-const ALLOWED_DOMAINS = ['antuan.co.kr'];
+const ALLOWED_DOMAINS = ['antuan.co.kr', 'sweatch.ai'];
 const domainOf = e => String(e || '').toLowerCase().split('@')[1] || '';
 const isAllowedDomain = e => ALLOWED_DOMAINS.includes(domainOf(e));
 const ROOT = 'interview';                 // 데이터 저장 위치 (크리에이터 예약 데이터와 분리)
