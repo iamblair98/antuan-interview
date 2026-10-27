@@ -295,8 +295,27 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 .mini-day.md-blocked{background:var(--c-block-bg);border-color:var(--c-block-bd);color:var(--c-block-tx);cursor:pointer;}
 .mini-day.md-dis.md-click{cursor:pointer;}
 .mini-day.md-sel{border-color:var(--ink)!important;box-shadow:inset 0 0 0 1px var(--ink)!important;}
-.md-badge{position:absolute;top:-5px;right:-4px;min-width:15px;height:15px;padding:0 3px;border-radius:99px;background:var(--conf-bg);color:var(--conf-tx);border:1px solid #F0C4D0;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;}
-.day-panel{background:var(--white);border:1px solid var(--line);border-radius:var(--radius-md);padding:14px;min-height:100%;}
+.md-badge{position:absolute;top:1px;right:1px;min-width:13px;height:13px;padding:0 3px;border-radius:99px;background:var(--conf-bg);color:var(--conf-tx);border:1px solid #F0C4D0;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;}
+.day-panel{background:var(--white);border:1px solid var(--line);border-radius:var(--radius-md);padding:14px;min-height:100%;display:flex;flex-direction:column;min-width:0;}
+.day-body{overflow-y:auto;flex:1;min-height:0;margin:0 -4px;padding:0 4px;}
+.seg{display:inline-flex;background:#F4F1F2;border-radius:8px;padding:2px;flex-shrink:0;}
+.seg button{border:none;background:none;font-size:11px;font-weight:500;color:var(--ink-3);padding:4px 10px;border-radius:6px;white-space:nowrap;}
+.seg button.on{background:var(--white);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(45,45,45,0.1);}
+.day-panel-sub{font-size:11px;color:var(--ink-3);font-weight:500;margin-top:1px;}
+.fl-group{padding:8px 2px 4px;font-size:11px;font-weight:700;color:var(--ink-2);display:flex;align-items:center;gap:6px;}
+.fl-group.sel{color:var(--conf-tx);}
+.fl-group::after{content:"";flex:1;height:1px;background:var(--pink-100);}
+.fl-row{display:grid;grid-template-columns:48px minmax(0,0.9fr) minmax(0,1.3fr) minmax(0,0.9fr);gap:8px;align-items:center;padding:7px 4px;font-size:12px;border-radius:6px;cursor:pointer;}
+.fl-row:hover{background:var(--pink-50);}
+.fl-time{font-weight:700;color:var(--ink);display:flex;align-items:center;gap:5px;}
+.fl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.fl-dot.conf{background:#E39CAE;}
+.fl-dot.pend{background:#F2C14E;}
+.fl-name{font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fl-pos,.fl-iv{color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fl-iv{color:var(--ink-3);}
+.fl-legend{display:flex;gap:12px;justify-content:flex-end;font-size:10px;color:var(--ink-3);padding-top:8px;margin-top:6px;border-top:1px solid var(--pink-100);}
+.fl-legend span{display:inline-flex;align-items:center;gap:4px;}
 .day-panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:10px;margin-bottom:8px;border-bottom:1px solid var(--pink-100);}
 .day-panel-date{font-size:14px;font-weight:700;color:var(--ink);}
 .day-item{display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--pink-100);cursor:pointer;border-radius:6px;}
@@ -627,7 +646,7 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
 
     <div class="section card-soft">
       <div class="section-title"><i class="ti ti-calendar-month"></i>월간 면접 일정</div>
-      <div class="section-sub" style="line-height:1.6;margin-top:4px;">날짜를 누르면 그날 확정된 면접 일정이 시간순으로 표시됩니다. 숫자 배지는 확정된 면접 건수입니다.</div>
+      <div class="section-sub" style="line-height:1.6;margin-top:4px;">날짜를 누르면 그날 확정된 면접 일정이 표시됩니다. 오른쪽 위 '간략 · 전체' 버튼으로 이달 전체 일정을 목록으로 볼 수도 있습니다. 숫자 배지는 확정된 면접 건수입니다.</div>
       <div class="mon-wrap">
         <div class="mon-left">
           <div class="cal-nav">
@@ -643,13 +662,6 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
         </div>
         <div class="day-panel" id="day-panel"></div>
       </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head">
-        <div class="section-title"><i class="ti ti-list-details"></i>전체 면접 일정</div>
-      </div>
-      <div id="booking-list"></div>
     </div>
 
     <div class="section" style="margin-bottom:4px;">
@@ -1408,7 +1420,7 @@ function renderAdmin() {
   checkNewPending();
   const active = ['admin', 'cand', 'log', 'perm'].find(p => $('panel-' + p).classList.contains('active'));
   if (active === 'perm') renderPerm();
-  if (active === 'admin') { renderStats(); renderPending(); renderSchedule(); renderMiniCal(); renderBookingList(); }
+  if (active === 'admin') { renderStats(); renderPending(); renderSchedule(); renderMiniCal(); }
   if (active === 'cand') renderCandidates();
   if (active === 'log') renderLogs();
   if ($('detail-modal').classList.contains('open') && detailCid) renderDetail(detailCid);
@@ -1506,17 +1518,61 @@ function renderMiniCal() {
 }
 window.selectBlkDay = k => { blkSel = k; renderMiniCal(); };
 
+let panelMode = 'simple';
+try { panelMode = localStorage.getItem('iv_panel_mode') === 'full' ? 'full' : 'simple'; } catch (e) {}
+window.setPanelMode = m => { panelMode = m; try { localStorage.setItem('iv_panel_mode', m); } catch (e) {} renderDayPanel(); };
+const segHTML = () => `<div class="seg"><button class="${panelMode === 'simple' ? 'on' : ''}" onclick="setPanelMode('simple')">간략</button><button class="${panelMode === 'full' ? 'on' : ''}" onclick="setPanelMode('full')">전체</button></div>`;
+
+function fitPanel() {
+  const el = $('day-panel'), body = el.querySelector('.day-body'), left = document.querySelector('.mon-left');
+  if (!body || !left) return;
+  const stacked = getComputedStyle(document.querySelector('.mon-wrap')).gridTemplateColumns.split(' ').length < 2;
+  const head = el.querySelector('.day-panel-head'), foot = el.querySelector('.fl-legend, .day-note');
+  const avail = stacked ? 380 : left.offsetHeight - 28 - (head ? head.offsetHeight + 8 : 0) - (foot ? foot.offsetHeight + 14 : 0);
+  body.style.maxHeight = Math.max(160, avail) + 'px';
+}
+
 function renderDayPanel() {
-  const k = blkSel, el = $('day-panel');
-  if (!k || !k.startsWith(`${blkY}-${pad(blkM + 1)}`)) {
-    el.innerHTML = '<div class="empty" style="padding:30px 8px;"><i class="ti ti-calendar-search"></i>날짜를 선택하면<br>확정된 면접 일정을 볼 수 있습니다.</div>';
+  const el = $('day-panel');
+  const monthPrefix = `${blkY}-${pad(blkM + 1)}`;
+  if (panelMode === 'full') {
+    const list = allBookings().filter(x => x.b.date.startsWith(monthPrefix));
+    const confN = list.filter(x => x.b.status === 'confirmed').length;
+    let h = `<div class="day-panel-head"><div><div class="day-panel-date">${blkY}년 ${blkM + 1}월 전체 일정</div><div class="day-panel-sub">확정 ${confN}건 · 승인 대기 ${list.length - confN}건</div></div>${segHTML()}</div>`;
+    h += '<div class="day-body">';
+    if (!list.length) h += '<div class="field-help" style="text-align:center;padding:24px 0;">이달 예약된 면접 일정이 없습니다.</div>';
+    let last = '';
+    list.forEach(x => {
+      if (x.b.date !== last) { last = x.b.date; h += `<div class="fl-group${x.b.date === blkSel ? ' sel' : ''}" data-g="${x.b.date}">${esc(fmtShort(x.b.date))}</div>`; }
+      const conf = x.b.status === 'confirmed';
+      h += `<div class="fl-row" onclick="openDetail('${x.cid}')" title="${conf ? '면접 확정' : '승인 대기'}">
+        <div class="fl-time"><span class="fl-dot ${conf ? 'conf' : 'pend'}"></span>${fmtTime(x.b.time)}</div>
+        <div class="fl-name">${esc(x.c.name)}</div>
+        <div class="fl-pos" title="${esc(x.c.position || '')}">${esc(x.c.position || '-')}</div>
+        <div class="fl-iv">${esc(x.c.interviewer || '-')}</div>
+      </div>`;
+    });
+    h += '</div>';
+    h += '<div class="fl-legend"><span><i class="fl-dot conf"></i>면접 확정</span><span><i class="fl-dot pend"></i>승인 대기</span></div>';
+    el.innerHTML = h;
+    fitPanel();
+    if (blkSel) {
+      const g = el.querySelector(`[data-g="${blkSel}"]`), body = el.querySelector('.day-body');
+      if (g && body) body.scrollTop = g.offsetTop - body.offsetTop;
+    }
+    return;
+  }
+  const k = blkSel;
+  if (!k || !k.startsWith(monthPrefix)) {
+    el.innerHTML = `<div class="day-panel-head"><div class="day-panel-date">${blkY}년 ${blkM + 1}월</div>${segHTML()}</div><div class="day-body"><div class="empty" style="padding:30px 8px;"><i class="ti ti-calendar-search"></i>날짜를 선택하면<br>확정된 면접 일정을 볼 수 있습니다.</div></div>`;
+    fitPanel();
     return;
   }
   const tk = todayKey(), past = k < tk;
   const list = allBookings().filter(x => x.b.date === k && x.b.status === 'confirmed');
   const pendN = allBookings().filter(x => x.b.date === k && x.b.status !== 'confirmed').length;
-  const st = !isBusinessDay(k) ? '<span class="chip chip-none">휴무</span>' : blocked[k] ? '<span class="chip chip-none">잠금</span>' : past ? '<span class="chip chip-none">지난 날짜</span>' : '<span class="chip" style="background:var(--c-avail-bg);color:var(--c-avail-tx);border:1px solid var(--c-avail-bd);">예약 가능</span>';
-  let h = `<div class="day-panel-head"><div class="day-panel-date">${esc(fmtDate(k))}</div>${st}</div>`;
+  const st = !isBusinessDay(k) ? '휴무' : blocked[k] ? '잠금 (예약불가)' : past ? '지난 날짜' : '예약 가능';
+  let h = `<div class="day-panel-head"><div><div class="day-panel-date">${esc(fmtDate(k))}</div><div class="day-panel-sub">${st}</div></div>${segHTML()}</div><div class="day-body">`;
   h += list.length ? list.map(x => `
     <div class="day-item" onclick="openDetail('${x.cid}')">
       <div class="day-time">${fmtTime(x.b.time)}</div>
@@ -1526,12 +1582,15 @@ function renderDayPanel() {
       </div>
       <i class="ti ti-chevron-right" style="color:var(--ink-4);"></i>
     </div>`).join('') : '<div class="field-help" style="text-align:center;padding:18px 0;">확정된 면접 일정이 없습니다.</div>';
+  h += '</div>';
   const notes = [];
   if (pendN) notes.push(`승인 대기 ${pendN}건은 상단 '승인 대기 요청'에서 확인할 수 있습니다.`);
   if (!blocked[k] && hasSlotLocks(k)) notes.push(`잠긴 시간: ${Object.keys(blockedSlots[k]).sort().map(fmtTime).join(', ')}`);
   if (notes.length) h += `<div class="day-note">${notes.map(esc).join('<br>')}</div>`;
   el.innerHTML = h;
+  fitPanel();
 }
+window.addEventListener('resize', () => { if (mode === 'admin' && $('day-panel').innerHTML) fitPanel(); });
 
 // ── 잠금 처리 (날짜 전체 / 시간별) ──
 window.setDayLock = async function (k, lock) {
