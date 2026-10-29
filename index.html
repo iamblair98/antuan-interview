@@ -479,6 +479,7 @@ textarea.field-input{resize:vertical;min-height:72px;line-height:1.6;}
           <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
           채용 담당자 로그인
         </button>
+        <div class="gate-hint" id="g-login-msg" style="display:none;color:var(--c-full-tx);background:var(--c-full-bg);border-radius:8px;padding:10px 12px;text-align:left;word-break:break-all;"></div>
       </div>
     </div>
   </div>
@@ -1017,7 +1018,20 @@ window.toggleGate = function () {
 };
 
 // ── Google 로그인 ──
+const inAppBrowser = () => {
+  const ua = navigator.userAgent || '';
+  if (/KAKAOTALK/i.test(ua)) return 'kakao';
+  if (/NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|; wv\)/i.test(ua)) return 'other';
+  return '';
+};
 window.googleLogin = async function () {
+  const iab = inAppBrowser();
+  if (iab) {
+    if (iab === 'kakao') { location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href); }
+    $('g-login-msg').textContent = '카카오톡 · 네이버 등 앱 안의 브라우저에서는 Google 정책상 로그인이 차단됩니다. 오른쪽 위(또는 아래) 메뉴에서 "다른 브라우저로 열기"를 눌러 크롬 · 사파리에서 다시 시도해 주세요.';
+    $('g-login-msg').style.display = 'block';
+    return;
+  }
   const btn = $('g-login-btn'); btn.disabled = true;
   try {
     const provider = new FB.GoogleAuthProvider();
@@ -1030,7 +1044,7 @@ window.googleLogin = async function () {
     else if (/unauthorized-domain/.test(c)) showToast('이 주소가 Firebase 승인된 도메인에 등록되지 않았습니다. 관리자에게 문의해 주세요.');
     else if (/operation-not-allowed/.test(c)) showToast('Firebase에서 Google 로그인이 아직 활성화되지 않았습니다.');
     else if (/network/.test(c)) showToast('네트워크 연결을 확인해 주세요.');
-    else showToast('Google 로그인에 실패했습니다. (' + c + ')');
+    else { $('g-login-msg').textContent = 'Google 로그인에 실패했습니다. (오류 코드: ' + c + ')'; $('g-login-msg').style.display = 'block'; }
   } finally { btn.disabled = false; }
 };
 
@@ -1039,21 +1053,23 @@ const isOwner = () => !!(adminUser && adminUser.email && OWNER_EMAILS.includes(a
 let myAdminEntry = null;
 let adminList = {};
 
+// 반환값: { ok: true } 또는 { ok: false, reason: '사유 안내 문구' }
 async function verifyAdmin(user) {
   const email = (user.email || '').toLowerCase();
-  if (!email) return false;
+  if (!email) return { ok: false, reason: 'Google 계정의 이메일 정보를 확인할 수 없습니다.' };
   const viaGoogle = (user.providerData || []).some(p => p && p.providerId === 'google.com');
-  if (!viaGoogle || !isAllowedDomain(email)) return false;
-  if (OWNER_EMAILS.includes(email)) {
-    try { const s = await FB.get(FB.ref(FB.db, 'adminList/' + emailKey(email))); myAdminEntry = s.val(); } catch (e) { myAdminEntry = null; }
-    return true;
-  }
+  if (!viaGoogle) return { ok: false, reason: '채용 담당자는 Google 로그인으로만 접속할 수 있습니다.' };
+  if (!isAllowedDomain(email)) return { ok: false, reason: `${email} 계정은 허용된 회사 도메인(${ALLOWED_DOMAINS.map(d => '@' + d).join(', ')})이 아닙니다. 회사 Google 계정을 선택해 로그인해 주세요.` };
   try {
     const s = await FB.get(FB.ref(FB.db, 'adminList/' + emailKey(email)));
-    if (!s.exists()) return false;
     myAdminEntry = s.val();
-    return true;
-  } catch (e) { return false; }
+    if (OWNER_EMAILS.includes(email) || s.exists()) return { ok: true };
+    return { ok: false, reason: `${email} 계정이 권한 목록에 없습니다. 최고 관리자에게 이 이메일 주소 그대로 권한 등록을 요청해 주세요.` };
+  } catch (e) {
+    console.error('[권한 확인 실패]', e);
+    if (OWNER_EMAILS.includes(email)) { myAdminEntry = null; return { ok: true }; }
+    return { ok: false, reason: `${email} 계정의 접근이 서버 보안 규칙에서 거부되었습니다. 최고 관리자가 Firebase 보안 규칙을 최신 버전으로 게시했는지 확인해 주세요.` };
+  }
 }
 
 const adminName = () => {
@@ -1195,7 +1211,6 @@ window.sw = function (tab) {
 // 지원자 화면
 // ════════════════════════════════════════════════
 const slotTaken = (d, t) => !!(slots[d] && slots[d][t]);
-const takenCount = d => SLOT_TIMES.filter(t => slotTaken(d, t)).length;
 const isSlotLocked = (d, t) => !!blocked[d] || !!(blockedSlots[d] && blockedSlots[d][t]);
 const openTimes = d => SLOT_TIMES.filter(t => !isSlotLocked(d, t));
 const hasSlotLocks = d => !!(blockedSlots[d] && Object.keys(blockedSlots[d]).length);
@@ -1678,27 +1693,7 @@ function setupSchedCtx() {
   window.addEventListener('resize', closeCtx);
 }
 
-window.toggleBlock = async function (k) {
-  const was = !!blocked[k];
-  const u = {};
-  u[`blocked/${k}`] = was ? null : true;
-  u[`logs/${newKey('logs')}`] = { ts: Date.now(), actor: adminName(), action: 'lock', message: `${fmtShort(k)} 예약창을 ${was ? '해제' : '잠금'}했습니다.` };
-  try { await FB.update(R(''), u); showToast(`${fmtShort(k)} 예약창 ${was ? '해제' : '잠금'} 완료`); }
-  catch (e) { showToast('처리 권한이 없거나 연결이 불안정합니다.'); }
-};
 
-function renderBookingList() {
-  const all = allBookings();
-  if (!all.length) { $('booking-list').innerHTML = '<div class="card"><div class="empty"><i class="ti ti-calendar-off"></i>예약된 면접 일정이 없습니다.</div></div>'; return; }
-  $('booking-list').innerHTML = `<div class="list-wrap"><table class="list-tbl"><thead><tr>
-    <th>면접일</th><th>시간</th><th>이름</th><th>지원 직무</th><th>면접관</th><th>상태</th><th>관리</th></tr></thead><tbody>
-    ${all.map(x => `<tr>
-      <td>${esc(fmtShort(x.b.date))}</td><td style="font-weight:700;">${fmtTime(x.b.time)}</td>
-      <td style="font-weight:700;">${esc(x.c.name)}</td><td class="l">${esc(x.c.position || '-')}</td><td class="l">${esc(x.c.interviewer || '-')}</td>
-      <td>${chipHTML(statusOf(x.cid))}</td>
-      <td><button class="btn btn-ink btn-sm" onclick="openDetail('${x.cid}')">상세</button></td></tr>`).join('')}
-    </tbody></table></div>`;
-}
 
 // ════════════════════════════════════════════════
 // 관리자: 면접 예정자 목록
@@ -2315,14 +2310,14 @@ async function init() {
   FB.onAuthStateChanged(FB.auth, async user => {
     if (user && !user.isAnonymous) {
       adminUser = user;
-      const ok = await verifyAdmin(user);
-      if (ok) enterAdmin();
+      const res = await verifyAdmin(user);
+      if (res.ok) { $('g-login-msg').style.display = 'none'; enterAdmin(); }
       else {
-        const em = user.email || '';
         adminUser = null; myAdminEntry = null;
         try { await FB.signOut(FB.auth); } catch (e) {}
         showGate();
-        showToast(`${em} 계정은 접속 권한이 없습니다. 채용 담당자에게 권한 등록을 요청해 주세요.`);
+        $('g-login-msg').textContent = res.reason;
+        $('g-login-msg').style.display = 'block';
       }
     } else {
       if (!user) { adminUser = null; myAdminEntry = null; }
